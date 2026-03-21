@@ -1,4 +1,5 @@
 using FitnessTracking.Api;
+using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,5 +21,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapCarter();
 
 app.Run();
