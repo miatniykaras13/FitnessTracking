@@ -1,4 +1,6 @@
 ﻿using FitnessTracking.Infrastructure;
+using Carter;
+using FitnessTracking.Application;
 
 namespace FitnessTracking.Api;
 
@@ -9,6 +11,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services
+            .AddApplication()
             .AddInfrastructure(configuration)
             .AddWeb(configuration);
         return services;
@@ -18,6 +21,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddCarter();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         return services;

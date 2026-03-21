@@ -10,7 +10,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Carter" Version="8.2.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.25" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.25">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,7 +29,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FitnessTracking.Application\FitnessTracking.Application.csproj" />
       <ProjectReference Include="..\FitnessTracking.Infrastructure\FitnessTracking.Infrastructure.csproj" />
+      <ProjectReference Include="..\FitnessTracking.Shared\FitnessTracking.Shared.csproj" />
     </ItemGroup>
 
 </Project>
