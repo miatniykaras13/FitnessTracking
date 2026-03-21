@@ -1,0 +1,12 @@
+services:
+  fitnesstrackingdb:
+    container_name: fitnesstrackingdb
+    environment:
+      - POSTGRES_USER=${FITNESSTRACKING_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${FITNESSTRACKING_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${FITNESSTRACKING_POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - fitness-tracking-postgres-data:/var/lib/postgresql

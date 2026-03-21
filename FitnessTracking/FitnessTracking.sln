@@ -1,8 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11612.150 stable
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessTracking.Api", "FitnessTracking.Api\FitnessTracking.Api.csproj", "{652A98EC-9E7D-4176-A5C8-4397A2F598AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessTracking.Domain", "FitnessTracking.Domain\FitnessTracking.Domain.csproj", "{9F2FBB60-E98A-4ADD-9D93-524F5BBB3468}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessTracking.Infrastructure", "FitnessTracking.Infrastructure\FitnessTracking.Infrastructure.csproj", "{44E897EE-87AE-4C29-8656-6F0714AEAC79}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +25,16 @@ Global
 		{9F2FBB60-E98A-4ADD-9D93-524F5BBB3468}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F2FBB60-E98A-4ADD-9D93-524F5BBB3468}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F2FBB60-E98A-4ADD-9D93-524F5BBB3468}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44E897EE-87AE-4C29-8656-6F0714AEAC79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44E897EE-87AE-4C29-8656-6F0714AEAC79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44E897EE-87AE-4C29-8656-6F0714AEAC79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44E897EE-87AE-4C29-8656-6F0714AEAC79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
