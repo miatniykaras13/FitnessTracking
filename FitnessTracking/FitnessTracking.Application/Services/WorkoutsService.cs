@@ -6,7 +6,7 @@ using FitnessTracking.Shared.Contracts.Responses;
 
 namespace FitnessTracking.Application.Services;
 
-public class WorkoutsService(IWorkoutsRepository repository)
+public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
 {
     public async Task<WorkoutResponse> GetByIdAsync(GetWorkoutByIdRequest request, CancellationToken ct)
     {
