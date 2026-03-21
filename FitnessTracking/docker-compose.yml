@@ -1,0 +1,6 @@
+services:
+  fitnesstrackingdb:
+    image: postgres:18
+      
+volumes:
+  fitness-tracking-postgres-data:
