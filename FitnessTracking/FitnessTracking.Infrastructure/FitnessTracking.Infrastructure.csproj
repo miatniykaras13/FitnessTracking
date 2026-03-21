@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FitnessTracking.Application\FitnessTracking.Application.csproj" />
       <ProjectReference Include="..\FitnessTracking.Domain\FitnessTracking.Domain.csproj" />
     </ItemGroup>
 
