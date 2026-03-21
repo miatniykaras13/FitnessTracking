@@ -1,7 +1,8 @@
 ﻿using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Contracts;
+using FitnessTracking.Shared.Contracts.Requests;
+using FitnessTracking.Shared.Contracts.Responses;
 
 namespace FitnessTracking.Application.Services;
 

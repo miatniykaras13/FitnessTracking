@@ -1,4 +1,4 @@
-namespace FitnessTracking.Shared.Contracts;
+namespace FitnessTracking.Shared.Contracts.Requests;
 
 public record UpdateWorkoutRequest(
     Guid WorkoutId,
