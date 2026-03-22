@@ -9,13 +9,11 @@ public class UpdateWorkout : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app) =>
         app.MapPut("/workouts/{workoutId:guid}", async (
             Guid workoutId,
-            UpdateWorkoutRequest body,
+            UpdateWorkoutRequest request,
             IWorkoutsService workoutsService,
             CancellationToken ct = default) =>
         {
-            var request = body with { WorkoutId = workoutId };
-
-            var response = await workoutsService.UpdateAsync(request, ct);
+            var response = await workoutsService.UpdateAsync(workoutId, request, ct);
             return Results.Ok(response);
         });
 }

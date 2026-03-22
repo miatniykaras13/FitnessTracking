@@ -14,13 +14,13 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return MapToResponse(workout);
     }
 
-    public async Task<CreateWorkoutResponse> AddAsync(CreateWorkoutRequest request, CancellationToken ct)
+    public async Task<CreateWorkoutResponse> AddAsync(Guid userId, CreateWorkoutRequest request, CancellationToken ct)
     {
         var workoutId = Guid.NewGuid();
         var workout = new Workout
         {
             Id = workoutId.ToString(),
-            UserId = request.UserId.ToString(),
+            UserId = userId.ToString(),
             Title = request.Title,
             Type = Enum.Parse<WorkoutType>(request.Type),
             Duration = request.Duration,
@@ -34,9 +34,9 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return new CreateWorkoutResponse(workoutId);
     }
 
-    public async Task<UpdateWorkoutResponse> UpdateAsync(UpdateWorkoutRequest request, CancellationToken ct)
+    public async Task<UpdateWorkoutResponse> UpdateAsync(Guid workoutId, UpdateWorkoutRequest request, CancellationToken ct)
     {
-        var workout = await repository.GetByIdAsync(request.WorkoutId, ct);
+        var workout = await repository.GetByIdAsync(workoutId, ct);
 
         workout.Title = request.Title;
         workout.Type = Enum.Parse<WorkoutType>(request.Type);
@@ -46,7 +46,7 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
 
         await repository.UpdateAsync(workout, ct);
 
-        return new UpdateWorkoutResponse(request.WorkoutId);
+        return new UpdateWorkoutResponse(workoutId);
     }
 
     public async Task DeleteAsync(DeleteWorkoutRequest request, CancellationToken ct)
@@ -61,11 +61,12 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return new WorkoutListResponse(responses);
     }
 
-    public async Task<WorkoutExercisesResponse> GetExercisesByWorkoutIdAsync(GetWorkoutByIdRequest request, CancellationToken ct)
+    public async Task<WorkoutExercisesResponse> GetExercisesByWorkoutIdAsync(GetExercisesByWorkoutIdRequest request,
+        CancellationToken ct)
     {
         var exercises = await repository.GetExercisesByWorkoutIdAsync(request.WorkoutId, ct);
         var exerciseResponses = exercises.Select(MapExerciseToResponse).ToList();
-        return new WorkoutExercisesResponse(request.WorkoutId, exerciseResponses);
+        return new WorkoutExercisesResponse(exerciseResponses);
     }
 
     public Task AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken ct)

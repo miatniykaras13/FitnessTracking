@@ -1,4 +1,4 @@
 namespace FitnessTracking.Shared.Contracts.Responses;
 
-public record WorkoutExercisesResponse(Guid WorkoutId, IEnumerable<ExerciseResponse> Exercises);
+public record WorkoutExercisesResponse(IEnumerable<ExerciseResponse> Exercises);
 
