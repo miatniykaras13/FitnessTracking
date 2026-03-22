@@ -10,18 +10,20 @@ services.AddProgramDependencies(configuration);
 
 var app = builder.Build();
 
+app.MapCarter();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(o => 
+    
+    app.UseSwaggerUI(o =>
     {
-        o.RoutePrefix = "/docs";
+        o.SwaggerEndpoint("/swagger/v1/swagger.json", "FitnessTracking.Api v1");
+        o.RoutePrefix = "docs";
     });
 }
 
 app.UseHttpsRedirection();
 
-app.MapCarter();
 
 app.Run();
