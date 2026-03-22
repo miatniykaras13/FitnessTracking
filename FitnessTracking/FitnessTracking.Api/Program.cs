@@ -1,5 +1,6 @@
 using FitnessTracking.Api;
 using Carter;
+using FitnessTracking.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ var configuration = builder.Configuration;
 services.AddProgramDependencies(configuration);
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapCarter();
 
