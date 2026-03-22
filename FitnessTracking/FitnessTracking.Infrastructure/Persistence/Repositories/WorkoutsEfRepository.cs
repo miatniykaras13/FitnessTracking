@@ -1,82 +1,87 @@
-﻿using FitnessTracking.Application.Abstractions;
+﻿using CSharpFunctionalExtensions;
+using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Domain.Models;
+using FitnessTracking.Shared.Errors;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Infrastructure.Persistence.Repositories;
 
 public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkoutsRepository
 {
-    public async Task<Workout> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result<Workout, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FirstOrDefaultAsync(w => w.Id == id.ToString(), cancellationToken);
 
-        if (workout is null)
-        {
-            throw new KeyNotFoundException($"Workout with id {id} was not found.");
-        }
-
-        return workout;
+        return workout is null
+            ? Result.Failure<Workout, Error>(WorkoutErrors.NotFound(id))
+            : Result.Success<Workout, Error>(workout);
     }
 
-    public async Task AddAsync(Workout workout, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> AddAsync(Workout workout, CancellationToken cancellationToken)
     {
         await dbContext.Workouts.AddAsync(workout, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
+        return UnitResult.Success<Error>();
     }
 
-    public async Task UpdateAsync(Workout workout, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> UpdateAsync(Workout workout, CancellationToken cancellationToken)
     {
         dbContext.Workouts.Update(workout);
         await dbContext.SaveChangesAsync(cancellationToken);
+        return UnitResult.Success<Error>();
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FindAsync([id.ToString()], cancellationToken);
 
         if (workout is null)
         {
-            return;
+            return UnitResult.Failure(WorkoutErrors.NotFound(id));
         }
 
         dbContext.Workouts.Remove(workout);
         await dbContext.SaveChangesAsync(cancellationToken);
+        return UnitResult.Success<Error>();
     }
 
-    public async Task<IReadOnlyList<Workout>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId,
+        CancellationToken cancellationToken)
     {
-        return await dbContext.Workouts
+        var workouts = await dbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId == userId.ToString())
             .ToListAsync(cancellationToken);
+
+        return Result.Success<IReadOnlyList<Workout>, Error>(workouts);
     }
 
-    public async Task<IReadOnlyList<Exercise>> GetExercisesByWorkoutIdAsync(Guid workoutId, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(Guid workoutId,
+        CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .AsNoTracking()
             .FirstOrDefaultAsync(w => w.Id == workoutId.ToString(), cancellationToken);
 
-        if (workout is null)
-        {
-            throw new KeyNotFoundException($"Workout with id {workoutId} was not found.");
-        }
-
-        return workout.Exercises;
+        return workout is null
+            ? Result.Failure<IReadOnlyList<Exercise>, Error>(WorkoutErrors.NotFound(workoutId))
+            : Result.Success<IReadOnlyList<Exercise>, Error>(workout.Exercises);
     }
 
-    public async Task AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FirstOrDefaultAsync(w => w.Id == workoutId.ToString(), cancellationToken);
 
         if (workout is null)
         {
-            throw new KeyNotFoundException($"Workout with id {workoutId} was not found.");
+            return UnitResult.Failure(WorkoutErrors.NotFound(workoutId));
         }
-        //todo: сделать реализацию 
+
+        // todo: сделать реализацию
         await dbContext.SaveChangesAsync(cancellationToken);
+        return UnitResult.Success<Error>();
     }
 }

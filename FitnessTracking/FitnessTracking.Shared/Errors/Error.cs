@@ -64,15 +64,6 @@ public class Error
     public static Error Unknown(string? message = null) =>
         new($"unknown_error", ErrorType.Unknown, message);
 
-    /// <summary>
-    /// Represents domain error. Error code should be fully entered
-    /// </summary>
-    /// <param name="code">error code.</param>
-    /// <param name="message">additional info.</param>
-    /// <returns>Error.</returns>
-    public static Error Domain(string code, string? message = null) =>
-        new(code, ErrorType.Domain, message);
-
     public static Error Forbidden(string obj, string? message = null) =>
         new($"{obj}.is_forbidden", ErrorType.Forbidden, message);
 

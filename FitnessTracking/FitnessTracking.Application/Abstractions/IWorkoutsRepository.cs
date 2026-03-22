@@ -1,20 +1,22 @@
-﻿using FitnessTracking.Domain.Models;
+﻿using CSharpFunctionalExtensions;
+using FitnessTracking.Domain.Models;
+using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Abstractions;
 
 public interface IWorkoutsRepository
 {
-    Task<Workout> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<Workout, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task AddAsync(Workout workout, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> AddAsync(Workout workout, CancellationToken cancellationToken);
 
-    Task UpdateAsync(Workout workout, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> UpdateAsync(Workout workout, CancellationToken cancellationToken);
 
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> DeleteAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IReadOnlyList<Workout>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Exercise>> GetExercisesByWorkoutIdAsync(Guid workoutId, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(Guid workoutId, CancellationToken cancellationToken);
     
-    Task AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken);
 }
