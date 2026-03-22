@@ -12,9 +12,7 @@ public class CreateWorkout : ICarterModule
             IWorkoutsService workoutsService,
             CancellationToken ct = default) =>
         {
-            var response = await workoutsService.AddAsync(request, ct);
+            var response = await workoutsService.AddAsync(Guid.NewGuid(), request, ct); //todo: брать user id из claims principal
             return Results.Created($"/workouts/{response.WorkoutId}", response);
         });
 }
-
-

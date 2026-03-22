@@ -12,7 +12,7 @@ public class GetWorkoutExercisesByWorkoutId : ICarterModule
             IWorkoutsService workoutsService,
             CancellationToken ct = default) =>
         {
-            var request = new GetWorkoutByIdRequest(workoutId);
+            var request = new GetExercisesByWorkoutIdRequest(workoutId);
             var response = await workoutsService.GetExercisesByWorkoutIdAsync(request, ct);
             return Results.Ok(response);
         });
