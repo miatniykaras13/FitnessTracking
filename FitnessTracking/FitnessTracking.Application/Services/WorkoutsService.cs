@@ -22,7 +22,7 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return Result.Success<WorkoutResponse, Error>(MapToResponse(workoutResult.Value));
     }
 
-    public async Task<Result<CreateWorkoutResponse, Error>> AddAsync(Guid userId, CreateWorkoutRequest request, CancellationToken ct)
+    public async Task<Result<CreateWorkoutResponse, Error>> AddAsync(CreateWorkoutRequest request, CancellationToken ct)
     {
         if (!Enum.TryParse<WorkoutType>(request.Type, true, out var workoutType))
         {
@@ -33,7 +33,7 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         var workout = new Workout
         {
             Id = workoutId.ToString(),
-            UserId = userId.ToString(),
+            UserId = request.UserId.ToString(),
             Title = request.Title,
             Type = workoutType,
             Duration = request.Duration,
@@ -52,14 +52,16 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return Result.Success<CreateWorkoutResponse, Error>(new CreateWorkoutResponse(workoutId));
     }
 
-    public async Task<Result<UpdateWorkoutResponse, Error>> UpdateAsync(Guid workoutId, UpdateWorkoutRequest request, CancellationToken ct)
+    public async Task<Result<UpdateWorkoutResponse, Error>> UpdateAsync(
+        UpdateWorkoutRequest request,
+        CancellationToken ct)
     {
         if (!Enum.TryParse<WorkoutType>(request.Type, true, out var workoutType))
         {
             return Result.Failure<UpdateWorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(request.Type));
         }
 
-        var workoutResult = await repository.GetByIdAsync(workoutId, ct);
+        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, ct);
         if (workoutResult.IsFailure)
         {
             return Result.Failure<UpdateWorkoutResponse, Error>(workoutResult.Error);
@@ -80,7 +82,7 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
             return Result.Failure<UpdateWorkoutResponse, Error>(updateResult.Error);
         }
 
-        return Result.Success<UpdateWorkoutResponse, Error>(new UpdateWorkoutResponse(workoutId));
+        return Result.Success<UpdateWorkoutResponse, Error>(new UpdateWorkoutResponse(request.WorkoutId));
     }
 
     public async Task<UnitResult<Error>> DeleteAsync(DeleteWorkoutRequest request, CancellationToken ct)
@@ -114,9 +116,18 @@ public class WorkoutsService(IWorkoutsRepository repository) : IWorkoutsService
         return Result.Success<WorkoutExercisesResponse, Error>(new WorkoutExercisesResponse(exerciseResponses));
     }
 
-    public async Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken ct)
+    public async Task<Result<AddPhotosToWorkoutResponse, Error>> AddPhotosToWorkoutAsync(
+        AddPhotosToWorkoutRequest request,
+        CancellationToken ct)
     {
-        return await repository.AddPhotosToWorkoutAsync(workoutId, ct);
+        var photoIdResult = await repository.AddPhotosToWorkoutAsync(request.WorkoutId, ct);
+        
+        if(photoIdResult.IsFailure)
+        {
+            return Result.Failure<AddPhotosToWorkoutResponse, Error>(photoIdResult.Error);
+        }
+        
+        return new AddPhotosToWorkoutResponse(photoIdResult.Value);
     }
 
     private static WorkoutResponse MapToResponse(Workout workout)

@@ -70,18 +70,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             : Result.Success<IReadOnlyList<Exercise>, Error>(workout.Exercises);
     }
 
-    public async Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FirstOrDefaultAsync(w => w.Id == workoutId.ToString(), cancellationToken);
 
+        var photoId = Guid.NewGuid();
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.NotFound(workoutId));
+            return Result.Failure<Guid, Error>(WorkoutErrors.NotFound(workoutId));
         }
 
         // todo: сделать реализацию
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return Result.Success<Guid, Error>(photoId);
     }
 }
