@@ -9,9 +9,9 @@ public interface IWorkoutsService
 {
     Task<Result<WorkoutResponse, Error>> GetByIdAsync(GetWorkoutByIdRequest request, CancellationToken ct);
 
-    Task<Result<CreateWorkoutResponse, Error>> AddAsync(Guid userId, CreateWorkoutRequest request, CancellationToken ct);
+    Task<Result<CreateWorkoutResponse, Error>> AddAsync(CreateWorkoutRequest request, CancellationToken ct);
 
-    Task<Result<UpdateWorkoutResponse, Error>> UpdateAsync(Guid workoutId, UpdateWorkoutRequest request, CancellationToken ct);
+    Task<Result<UpdateWorkoutResponse, Error>> UpdateAsync(UpdateWorkoutRequest request, CancellationToken ct);
 
     Task<UnitResult<Error>> DeleteAsync(DeleteWorkoutRequest request, CancellationToken ct);
 
@@ -21,6 +21,8 @@ public interface IWorkoutsService
         GetExercisesByWorkoutIdRequest request,
         CancellationToken ct);
 
-    Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken ct);
+    Task<Result<AddPhotosToWorkoutResponse, Error>> AddPhotosToWorkoutAsync(
+        AddPhotosToWorkoutRequest request,
+        CancellationToken ct);
 }
 

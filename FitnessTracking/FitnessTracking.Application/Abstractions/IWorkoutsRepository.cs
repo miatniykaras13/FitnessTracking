@@ -18,5 +18,5 @@ public interface IWorkoutsRepository
 
     Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(Guid workoutId, CancellationToken cancellationToken);
     
-    Task<UnitResult<Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken);
+    Task<Result<Guid, Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken);
 }

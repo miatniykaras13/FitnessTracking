@@ -14,7 +14,9 @@ public class DeleteWorkout : ICarterModule
             IWorkoutsService workoutsService,
             CancellationToken ct = default) =>
         {
-            var request = new DeleteWorkoutRequest(workoutId);
+            var request = new DeleteWorkoutRequest(
+                workoutId,
+                Guid.NewGuid()); // todo: брать из claims principal
             var result = await workoutsService.DeleteAsync(request, ct);
             return result.ToHttpResult(httpContext);
         });
