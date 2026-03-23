@@ -12,14 +12,11 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
         builder.OwnsMany(w => w.Exercises, exerciseBuilder => // сделал как owned type т к у моделей нет id 
         {
             exerciseBuilder.WithOwner().HasForeignKey("WorkoutId");
-            exerciseBuilder.Property<int>("Id");
-            exerciseBuilder.HasKey("Id");
+            exerciseBuilder.HasKey("WorkoutId", "Name");
         
             exerciseBuilder.OwnsMany(e => e.Sets, setBuilder =>
             {
-                setBuilder.WithOwner().HasForeignKey("ExerciseId");
-                setBuilder.Property<int>("Id");
-                setBuilder.HasKey("Id");
+                setBuilder.WithOwner().HasForeignKey("WorkoutId", "Name");
             });
         });
         

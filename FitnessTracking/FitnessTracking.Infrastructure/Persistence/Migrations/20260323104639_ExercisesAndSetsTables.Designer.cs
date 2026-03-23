@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FitnessTracking.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracking.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(FitnessTrackingDbContext))]
-    partial class FitnessTrackingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260323104639_ExercisesAndSetsTables")]
+    partial class ExercisesAndSetsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +87,7 @@ namespace FitnessTracking.Infrastructure.Persistence.Migrations
                                     b2.Property<string>("WorkoutId")
                                         .HasColumnType("text");
 
-                                    b2.Property<string>("ExerciseName")
+                                    b2.Property<string>("Name")
                                         .HasColumnType("text");
 
                                     b2.Property<int>("Id")
@@ -99,12 +102,12 @@ namespace FitnessTracking.Infrastructure.Persistence.Migrations
                                     b2.Property<double>("Weight")
                                         .HasColumnType("double precision");
 
-                                    b2.HasKey("WorkoutId", "ExerciseName", "Id");
+                                    b2.HasKey("WorkoutId", "Name", "Id");
 
                                     b2.ToTable("Set");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("WorkoutId", "ExerciseName");
+                                        .HasForeignKey("WorkoutId", "Name");
                                 });
 
                             b1.Navigation("Sets");
