@@ -2,6 +2,7 @@
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Filters;
 using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
@@ -211,10 +212,12 @@ public class WorkoutsService(
         return await repository.DeleteAsync(request.WorkoutId, ct);
     }
 
-    public async Task<Result<WorkoutListResponse, Error>> GetByUserIdAsync(GetWorkoutsByUserIdRequest request,
+    public async Task<Result<WorkoutListResponse, Error>> GetByUserIdAsync(
+        GetWorkoutsByUserIdRequest request,
+        WorkoutFilter filter,
         CancellationToken ct)
     {
-        var workoutsResult = await repository.GetByUserIdAsync(request.UserId, ct);
+        var workoutsResult = await repository.GetByUserIdAsync(request.UserId, filter, ct);
         if (workoutsResult.IsFailure)
         {
             return Result.Failure<WorkoutListResponse, Error>(workoutsResult.Error);

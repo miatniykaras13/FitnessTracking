@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Filters;
 using FitnessTracking.Domain.Models;
+using FitnessTracking.Infrastructure.Extensions;
 using FitnessTracking.Shared.Errors;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,18 +52,22 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId,
+    public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(
+        Guid userId,
+        WorkoutFilter filter,
         CancellationToken cancellationToken)
     {
         var workouts = await dbContext.Workouts
             .AsNoTracking()
-            .Where(w => w.UserId == userId.ToString())
+            .Where(w => w.UserId.Equals(userId.ToString()))
+            .Filter(filter)
             .ToListAsync(cancellationToken);
 
         return Result.Success<IReadOnlyList<Workout>, Error>(workouts);
     }
 
-    public async Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(Guid workoutId,
+    public async Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
+        Guid workoutId,
         CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
