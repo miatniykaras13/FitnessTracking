@@ -18,6 +18,13 @@ public class DeleteExercise : ICarterModule
             var request = new DeleteExerciseRequest(workoutId, exerciseName);
             var result = await workoutsService.DeleteExerciseAsync(request, ct);
             return result.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Exercises")
+        .WithName("DeleteExercise")
+        .WithSummary("Delete exercise")
+        .WithDescription("Deletes an exercise from the specified workout.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 

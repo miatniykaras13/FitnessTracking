@@ -17,7 +17,13 @@ public class GetWorkoutsByUserId : ICarterModule
             var request = new GetWorkoutsByUserIdRequest(userId);
             var response = await workoutsService.GetByUserIdAsync(request, ct);
             return response.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Workouts")
+        .WithName("GetWorkoutsByUserId")
+        .WithSummary("Get user workouts")
+        .WithDescription("Returns all workouts created by the specified user.")
+        .Produces(StatusCodes.Status200OK)
+        .WithOpenApi();
 }
 
 

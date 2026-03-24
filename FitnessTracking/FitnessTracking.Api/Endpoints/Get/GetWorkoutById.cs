@@ -17,5 +17,12 @@ public class GetWorkoutById : ICarterModule
             var request = new GetWorkoutByIdRequest(workoutId);
             var workoutResponse = await workoutsService.GetByIdAsync(request, ct);
             return workoutResponse.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Workouts")
+        .WithName("GetWorkoutById")
+        .WithSummary("Get workout by id")
+        .WithDescription("Returns a single workout with all basic workout fields.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }

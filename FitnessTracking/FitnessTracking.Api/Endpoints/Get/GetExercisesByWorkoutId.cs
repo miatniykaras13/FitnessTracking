@@ -5,7 +5,7 @@ using FitnessTracking.Shared.Contracts.Requests;
 
 namespace FitnessTracking.Api.Endpoints.Get;
 
-public class GetWorkoutExercisesByWorkoutId : ICarterModule
+public class GetExercisesByWorkoutId : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app) =>
         app.MapGet("/workouts/{workoutId:guid}/exercises", async (
@@ -17,7 +17,14 @@ public class GetWorkoutExercisesByWorkoutId : ICarterModule
             var request = new GetExercisesByWorkoutIdRequest(workoutId);
             var response = await workoutsService.GetExercisesByWorkoutIdAsync(request, ct);
             return response.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Exercises")
+        .WithName("GetExercisesByWorkoutId")
+        .WithSummary("Get workout exercises with sets by workout id")
+        .WithDescription("Returns exercises for a workout including their sets.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 
 

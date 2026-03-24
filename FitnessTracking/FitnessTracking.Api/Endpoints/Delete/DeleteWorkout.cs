@@ -19,6 +19,13 @@ public class DeleteWorkout : ICarterModule
                 Guid.NewGuid()); // todo: брать из claims principal
             var result = await workoutsService.DeleteAsync(request, ct);
             return result.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Workouts")
+        .WithName("DeleteWorkout")
+        .WithSummary("Delete workout")
+        .WithDescription("Deletes a workout by id.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 

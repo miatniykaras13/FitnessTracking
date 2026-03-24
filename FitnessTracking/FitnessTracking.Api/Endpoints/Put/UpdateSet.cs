@@ -21,6 +21,14 @@ public class UpdateSet : ICarterModule
             var request = new UpdateSetRequest(workoutId, exerciseName, setIndex, dto);
             var result = await workoutsService.UpdateSetAsync(request, ct);
             return result.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Sets")
+        .WithName("UpdateSet")
+        .WithSummary("Update set")
+        .WithDescription("Replaces a single set by index for the specified exercise.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 

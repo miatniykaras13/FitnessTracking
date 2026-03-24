@@ -20,5 +20,12 @@ public class CreateWorkout : ICarterModule
                 dto);
             var response = await workoutsService.AddAsync(request, ct);
             return response.ToHttpResult(httpContext, created => Results.Created($"/workouts/{created.WorkoutId}", created));
-        });
+        })
+        .WithTags("Workouts")
+        .WithName("CreateWorkout")
+        .WithSummary("Create workout")
+        .WithDescription("Creates a new workout for the current user.")
+        .Produces(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .WithOpenApi();
 }
