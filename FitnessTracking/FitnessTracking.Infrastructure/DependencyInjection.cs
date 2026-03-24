@@ -1,4 +1,7 @@
 ﻿using FitnessTracking.Application.Abstractions;
+using FitnessTracking.Application.Abstractions.Helpers;
+using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Infrastructure.Helpers;
 using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +22,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IWorkoutsRepository, WorkoutsEfRepository>();
+        services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
 
         return services;
     }

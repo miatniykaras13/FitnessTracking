@@ -1,9 +1,9 @@
 ﻿using Carter;
-using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Api.Extensions;
+using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Shared.Contracts.Requests;
 
-namespace FitnessTracking.Api.Endpoints;
+namespace FitnessTracking.Api.Endpoints.Get;
 
 public class GetWorkoutById : ICarterModule
 {

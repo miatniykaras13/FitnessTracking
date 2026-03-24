@@ -1,10 +1,10 @@
 using Carter;
-using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Api.Extensions;
+using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Shared.Contracts.Requests;
 
-namespace FitnessTracking.Api.Endpoints;
+namespace FitnessTracking.Api.Endpoints.Put;
 
 public class UpdateWorkout : ICarterModule
 {
@@ -19,11 +19,7 @@ public class UpdateWorkout : ICarterModule
             var request = new UpdateWorkoutRequest(
                 workoutId,
                 Guid.NewGuid(), // todo: брать из claims principal
-                dto.Title,
-                dto.Type,
-                dto.Duration,
-                dto.CaloriesBurned,
-                dto.WorkoutDate);
+                dto);
             
             var response = await workoutsService.UpdateAsync(request, ct);
             return response.ToHttpResult(httpContext);
