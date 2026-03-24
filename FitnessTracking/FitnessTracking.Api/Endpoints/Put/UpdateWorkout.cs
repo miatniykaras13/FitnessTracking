@@ -23,7 +23,15 @@ public class UpdateWorkout : ICarterModule
             
             var response = await workoutsService.UpdateAsync(request, ct);
             return response.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Workouts")
+        .WithName("UpdateWorkout")
+        .WithSummary("Update workout")
+        .WithDescription("Replaces workout fields with the provided payload.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 
 

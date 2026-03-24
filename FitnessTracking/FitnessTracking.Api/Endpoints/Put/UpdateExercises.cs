@@ -19,7 +19,16 @@ public class UpdateExercises : ICarterModule
             var request = new UpdateExercisesRequest(workoutId, dto);
             var result = await workoutsService.UpdateExercisesAsync(request, ct);
             return result.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Exercises")
+        .WithName("UpdateExercises")
+        .WithSummary("Replace workout exercises")
+        .WithDescription("Replaces the full exercise list for the specified workout.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .WithOpenApi();
 }
 
 

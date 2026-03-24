@@ -19,6 +19,13 @@ public class DeleteSet : ICarterModule
             var request = new DeleteSetRequest(workoutId, exerciseName, setIndex);
             var result = await workoutsService.DeleteSetAsync(request, ct);
             return result.ToHttpResult(httpContext);
-        });
+        })
+        .WithTags("Sets")
+        .WithName("DeleteSet")
+        .WithSummary("Delete set")
+        .WithDescription("Deletes a set by index from the specified exercise.")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 

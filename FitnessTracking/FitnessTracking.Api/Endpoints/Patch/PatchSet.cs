@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Abstractions;
+using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Shared.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,5 +36,13 @@ public class PatchSet : ICarterModule
             var result = await workoutsService.PatchSetAsync(request, ct);
             return result.ToHttpResult(httpContext);
         })
-        .WithMetadata(new ConsumesAttribute("application/merge-patch+json"));
+        .WithTags("Sets")
+        .WithName("PatchSet")
+        .WithSummary("Partially update set")
+        .WithDescription("Applies a JSON Merge Patch document to a set by index.")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithMetadata(new ConsumesAttribute(typeof(MergePatchSetDto), "application/merge-patch+json"))
+        .WithOpenApi();
 }

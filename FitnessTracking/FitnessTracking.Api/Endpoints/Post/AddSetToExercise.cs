@@ -21,6 +21,13 @@ public class AddSetToExercise : ICarterModule
             var result = await workoutsService.AddSetAsync(request, ct);
             return result.ToHttpResult(httpContext, created =>
                 Results.Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(exerciseName)}/sets", created));
-        });
+        })
+        .WithTags("Sets")
+        .WithName("AddSetToExercise")
+        .WithSummary("Add set to exercise")
+        .WithDescription("Adds a new set to the specified exercise in a workout.")
+        .Produces(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 }
 
