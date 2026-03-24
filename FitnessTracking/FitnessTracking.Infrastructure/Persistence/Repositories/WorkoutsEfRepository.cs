@@ -2,6 +2,7 @@
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Infrastructure.Extensions;
 using FitnessTracking.Shared.Errors;
@@ -55,12 +56,14 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
     public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(
         Guid userId,
         WorkoutFilter filter,
+        SortParameters sortParameters,
         CancellationToken cancellationToken)
     {
         var workouts = await dbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId.Equals(userId.ToString()))
             .Filter(filter)
+            .Sort(sortParameters)
             .ToListAsync(cancellationToken);
 
         return Result.Success<IReadOnlyList<Workout>, Error>(workouts);

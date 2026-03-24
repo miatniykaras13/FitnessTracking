@@ -1,6 +1,8 @@
-﻿using FitnessTracking.Infrastructure;
+﻿using System.Text.Json.Serialization;
+using FitnessTracking.Infrastructure;
 using Carter;
 using FitnessTracking.Application;
+using Microsoft.AspNetCore.Http.Json;
 
 namespace FitnessTracking.Api;
 
@@ -23,6 +25,10 @@ public static class DependencyInjection
     {
         services.AddCarter();
         services.AddEndpointsApiExplorer();
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
         services.AddSwaggerGen();
         return services;
     }

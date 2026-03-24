@@ -1,4 +1,6 @@
-﻿using FitnessTracking.Application.Filters;
+﻿using System.Linq.Expressions;
+using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
 
@@ -24,5 +26,23 @@ public static class WorkoutExtensions
             query = query.Where(w => w.Duration <= filter.DurationTo);
         
         return query;
+    }
+    
+    public static IQueryable<Workout> Sort(this IQueryable<Workout> query, SortParameters sortParameters) =>
+        sortParameters.Direction == SortDirection.Descending 
+            ? query.OrderByDescending(GetKeySelector(sortParameters.OrderBy)) 
+            : query.OrderBy(GetKeySelector(sortParameters.OrderBy));
+    
+
+    private static Expression<Func<Workout, object>> GetKeySelector(string? orderBy)
+    {
+        if(string.IsNullOrEmpty(orderBy))
+            return w => w.CreatedAt;
+        return orderBy switch
+        {
+            nameof(Workout.CaloriesBurned) => w => w.CaloriesBurned,
+            nameof(Workout.WorkoutDate) => w => w.WorkoutDate,
+            _ => w => w.CreatedAt
+        };
     }
 }

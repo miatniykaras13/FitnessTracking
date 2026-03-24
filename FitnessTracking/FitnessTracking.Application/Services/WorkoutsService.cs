@@ -3,6 +3,7 @@ using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Sorting;
 using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
@@ -215,9 +216,14 @@ public class WorkoutsService(
     public async Task<Result<WorkoutListResponse, Error>> GetByUserIdAsync(
         GetWorkoutsByUserIdRequest request,
         WorkoutFilter filter,
+        SortParameters sortParameters,
         CancellationToken ct)
     {
-        var workoutsResult = await repository.GetByUserIdAsync(request.UserId, filter, ct);
+        var workoutsResult = await repository.GetByUserIdAsync(
+            request.UserId,
+            filter,
+            sortParameters,
+            ct);
         if (workoutsResult.IsFailure)
         {
             return Result.Failure<WorkoutListResponse, Error>(workoutsResult.Error);
