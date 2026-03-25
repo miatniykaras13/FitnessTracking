@@ -22,6 +22,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IWorkoutsRepository, WorkoutsEfRepository>();
+        services.AddScoped<IWorkoutPhotosRepository, WorkoutPhotosEfRepository>();
+        services.AddScoped<ILocalFileStorage, LocalFileStorage>();
         services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
 
         return services;

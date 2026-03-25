@@ -2,6 +2,7 @@
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Infrastructure.Persistence.Repositories;
 
@@ -13,7 +14,26 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
             .FindAsync([id.ToString()], cancellationToken);
         if (workoutPhoto is null)
         {
-            return Result.Failure<WorkoutPhoto, Error>(WorkoutErrors.WorkoutNotFound(id));
+            return Result.Failure<WorkoutPhoto, Error>(WorkoutErrors.WorkoutPhotoNotFound(Guid.Empty, id));
+        }
+
+        return Result.Success<WorkoutPhoto, Error>(workoutPhoto);
+    }
+
+    public async Task<Result<WorkoutPhoto, Error>> GetByWorkoutIdAndPhotoIdAsync(
+        Guid workoutId,
+        Guid photoId,
+        CancellationToken cancellationToken)
+    {
+        var workoutPhoto = await dbContext.WorkoutPhotos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                p => p.Id == photoId.ToString() && p.WorkoutId == workoutId.ToString(),
+                cancellationToken);
+
+        if (workoutPhoto is null)
+        {
+            return Result.Failure<WorkoutPhoto, Error>(WorkoutErrors.WorkoutPhotoNotFound(workoutId, photoId));
         }
 
         return Result.Success<WorkoutPhoto, Error>(workoutPhoto);
@@ -42,7 +62,27 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
 
         if (photo is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(id));
+            return UnitResult.Failure(WorkoutErrors.WorkoutPhotoNotFound(Guid.Empty, id));
+        }
+
+        dbContext.WorkoutPhotos.Remove(photo);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteByWorkoutIdAndPhotoIdAsync(
+        Guid workoutId,
+        Guid photoId,
+        CancellationToken cancellationToken)
+    {
+        var photo = await dbContext.WorkoutPhotos
+            .FirstOrDefaultAsync(
+                p => p.Id == photoId.ToString() && p.WorkoutId == workoutId.ToString(),
+                cancellationToken);
+
+        if (photo is null)
+        {
+            return UnitResult.Failure(WorkoutErrors.WorkoutPhotoNotFound(workoutId, photoId));
         }
 
         dbContext.WorkoutPhotos.Remove(photo);

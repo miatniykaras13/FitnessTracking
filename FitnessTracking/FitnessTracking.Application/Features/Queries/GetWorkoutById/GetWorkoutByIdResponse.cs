@@ -8,5 +8,6 @@ public record GetWorkoutByIdResponse(
     TimeSpan Duration,
     int CaloriesBurned,
     DateTime WorkoutDate,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    IEnumerable<string> ProgressPhotos);
 

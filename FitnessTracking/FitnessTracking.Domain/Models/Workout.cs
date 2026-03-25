@@ -23,5 +23,5 @@ public class Workout : IDocument
 
     public List<Exercise> Exercises { get; set; } = [];
 
-    public List<string> ProgressPhotos { get; set; } = [];
+    public List<WorkoutPhoto> ProgressPhotos { get; set; } = [];
 }

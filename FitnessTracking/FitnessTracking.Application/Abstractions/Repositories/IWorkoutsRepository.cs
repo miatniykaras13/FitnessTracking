@@ -13,6 +13,10 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         SortParameters sortParameters,
         PageParameters pageParameters,
         CancellationToken cancellationToken);
+    
+    Task<Result<Workout, Error>> GetByIdWithPhotosAsync(
+        Guid workoutId,
+        CancellationToken cancellationToken);
 
     Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 
