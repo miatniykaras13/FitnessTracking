@@ -12,7 +12,7 @@ public class WorkoutPhotoConfiguration : IEntityTypeConfiguration<WorkoutPhoto>
         builder.Property(p => p.Path).IsRequired();
 
         builder.HasOne(p => p.Workout)
-            .WithMany()
+            .WithMany(w => w.ProgressPhotos)
             .HasForeignKey(p => p.WorkoutId)
             .OnDelete(DeleteBehavior.Cascade);
     }

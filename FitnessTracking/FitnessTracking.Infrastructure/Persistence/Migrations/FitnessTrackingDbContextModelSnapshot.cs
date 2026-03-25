@@ -134,12 +134,17 @@ namespace FitnessTracking.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("FitnessTracking.Domain.Models.WorkoutPhoto", b =>
                 {
                     b.HasOne("FitnessTracking.Domain.Models.Workout", "Workout")
-                        .WithMany()
+                        .WithMany("ProgressPhotos")
                         .HasForeignKey("WorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Workout");
+                });
+
+            modelBuilder.Entity("FitnessTracking.Domain.Models.Workout", b =>
+                {
+                    b.Navigation("ProgressPhotos");
                 });
 #pragma warning restore 612, 618
         }

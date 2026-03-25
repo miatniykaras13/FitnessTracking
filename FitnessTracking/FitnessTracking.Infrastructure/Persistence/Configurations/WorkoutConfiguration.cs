@@ -20,7 +20,10 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
             });
         });
 
-        builder.Ignore(w => w.ProgressPhotos);
+        builder.HasMany(w => w.ProgressPhotos)
+            .WithOne(p => p.Workout)
+            .HasForeignKey(p => p.WorkoutId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasIndex(w => w.UserId);
     }
