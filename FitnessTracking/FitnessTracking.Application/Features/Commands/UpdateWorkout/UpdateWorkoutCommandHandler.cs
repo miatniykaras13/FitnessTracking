@@ -1,42 +1,39 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Enums;
+using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.UpdateWorkout;
 
-public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<UpdateWorkoutCommand, Result<WorkoutResponse, Error>>
+public class UpdateWorkoutCommandHandler(
+    IWorkoutsRepository repository,
+    IValidator<UpdateWorkoutCommand> validator)
+    : ICommandHandler<UpdateWorkoutCommand, Result<UpdateWorkoutResponse, List<Error>>>
 {
-    public async Task<Result<WorkoutResponse, Error>> Handle(UpdateWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UpdateWorkoutResponse, List<Error>>> Handle(
+        UpdateWorkoutCommand request,
+        CancellationToken cancellationToken)
     {
-        if (request.UserId == Guid.Empty)
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.UserIdRequired());
-        }
-
-        var workoutValidationError = ValidateWorkoutFields(
-            request.WorkoutDto.Title,
-            request.WorkoutDto.Type,
-            request.WorkoutDto.Duration,
-            request.WorkoutDto.CaloriesBurned,
-            request.WorkoutDto.WorkoutDate);
-        if (workoutValidationError is not null)
-        {
-            return Result.Failure<WorkoutResponse, Error>(workoutValidationError);
+            return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
         if (!Enum.TryParse<WorkoutType>(request.WorkoutDto.Type, true, out var workoutType))
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(
+                WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
         }
 
         var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(workoutResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(workoutResult.Error);
         }
 
         var workout = workoutResult.Value;
@@ -51,15 +48,15 @@ public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
 
         if (updateResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(updateResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(updateResult.Error);
         }
 
-        return Result.Success<WorkoutResponse, Error>(MapToResponse(workout));
+        return Result.Success<UpdateWorkoutResponse, List<Error>>(MapToResponse(workout));
     }
 
-    private static WorkoutResponse MapToResponse(Domain.Models.Workout workout)
+    private static UpdateWorkoutResponse MapToResponse(Workout workout)
     {
-        return new WorkoutResponse(
+        return new UpdateWorkoutResponse(
             Guid.Parse(workout.Id),
             Guid.Parse(workout.UserId),
             workout.Title,
@@ -68,40 +65,5 @@ public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
             workout.CaloriesBurned,
             workout.WorkoutDate,
             workout.CreatedAt);
-    }
-
-    private static Error? ValidateWorkoutFields(
-        string? title,
-        string? type,
-        TimeSpan duration,
-        int caloriesBurned,
-        DateTime workoutDate)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return WorkoutErrors.TitleRequired();
-        }
-
-        if (string.IsNullOrWhiteSpace(type))
-        {
-            return WorkoutErrors.TypeRequired();
-        }
-
-        if (duration <= TimeSpan.Zero)
-        {
-            return WorkoutErrors.DurationMustBePositive();
-        }
-
-        if (caloriesBurned < 0)
-        {
-            return WorkoutErrors.CaloriesBurnedMustBeNonNegative();
-        }
-
-        if (workoutDate == default)
-        {
-            return WorkoutErrors.WorkoutDateRequired();
-        }
-
-        return null;
     }
 }

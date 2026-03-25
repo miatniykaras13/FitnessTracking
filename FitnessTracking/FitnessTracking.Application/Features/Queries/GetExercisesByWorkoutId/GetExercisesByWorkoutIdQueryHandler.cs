@@ -1,35 +1,45 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
+using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Queries.GetExercisesByWorkoutId;
 
-public class GetExercisesByWorkoutIdQueryHandler(IWorkoutsRepository repository)
-    : IQueryHandler<GetExercisesByWorkoutIdQuery, Result<WorkoutExercisesResponse, Error>>
+public class GetExercisesByWorkoutIdQueryHandler(
+    IWorkoutsRepository repository,
+    IValidator<GetExercisesByWorkoutIdQuery> validator)
+    : IQueryHandler<GetExercisesByWorkoutIdQuery, Result<GetExercisesByWorkoutIdResponse, List<Error>>>
 {
-    public async Task<Result<WorkoutExercisesResponse, Error>> Handle(
+    public async Task<Result<GetExercisesByWorkoutIdResponse, List<Error>>> Handle(
         GetExercisesByWorkoutIdQuery request,
         CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
+        }
+
         var exercisesResult = await repository.GetExercisesByWorkoutIdAsync(request.WorkoutId, cancellationToken);
         if (exercisesResult.IsFailure)
         {
-            return Result.Failure<WorkoutExercisesResponse, Error>(exercisesResult.Error);
+            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(exercisesResult.Error);
         }
 
         var exerciseResponses = exercisesResult.Value.Select(MapExerciseToResponse).ToList();
-        return Result.Success<WorkoutExercisesResponse, Error>(new WorkoutExercisesResponse(exerciseResponses));
+        return Result.Success<GetExercisesByWorkoutIdResponse, List<Error>>(new GetExercisesByWorkoutIdResponse(exerciseResponses));
     }
 
-    private static ExerciseResponse MapExerciseToResponse(Exercise exercise)
+    private static ExerciseDto MapExerciseToResponse(Exercise exercise)
     {
         var setResponses = exercise.Sets
-            .Select(s => new SetResponse(s.Reps, s.Weight))
+            .Select(s => new SetDto(s.Reps, s.Weight))
             .ToList();
 
-        return new ExerciseResponse(exercise.Name, setResponses);
+        return new ExerciseDto(exercise.Name, setResponses);
     }
 }

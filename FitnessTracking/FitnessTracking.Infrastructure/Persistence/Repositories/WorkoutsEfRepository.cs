@@ -2,7 +2,7 @@
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
-using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Infrastructure.Extensions;

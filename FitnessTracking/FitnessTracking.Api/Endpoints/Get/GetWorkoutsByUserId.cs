@@ -2,7 +2,7 @@ using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Queries.GetWorkoutsByUserId;
 using FitnessTracking.Application.Filters;
-using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using MediatR;
 

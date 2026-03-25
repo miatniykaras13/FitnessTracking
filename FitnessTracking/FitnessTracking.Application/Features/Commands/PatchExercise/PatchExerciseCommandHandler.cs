@@ -2,24 +2,35 @@ using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.PatchExercise;
 
 public class PatchExerciseCommandHandler(
     IWorkoutsRepository repository,
-    IMergePatchHelper mergePatchHelper)
-    : ICommandHandler<PatchExerciseCommand, Result<ExerciseResponse, Error>>
+    IMergePatchHelper mergePatchHelper,
+    IValidator<PatchExerciseCommand> validator,
+    IValidator<MergePatchExerciseDto> mergePatchValidator)
+    : ICommandHandler<PatchExerciseCommand, Result<PatchExerciseResponse, List<Error>>>
 {
-    public async Task<Result<ExerciseResponse, Error>> Handle(PatchExerciseCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PatchExerciseResponse, List<Error>>> Handle(
+        PatchExerciseCommand request,
+        CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
+        }
+
         var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<ExerciseResponse, Error>(workoutResult.Error);
+            return Result.Failure<PatchExerciseResponse, List<Error>>(workoutResult.Error);
         }
 
         var workout = workoutResult.Value;
@@ -27,7 +38,8 @@ public class PatchExerciseCommandHandler(
             string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return Result.Failure<ExerciseResponse, Error>(WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+            return Result.Failure<PatchExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         var currentDto = new MergePatchExerciseDto
@@ -41,10 +53,10 @@ public class PatchExerciseCommandHandler(
         var patchedName = patchedDto.Name;
         var patchedSets = patchedDto.Sets;
 
-        var exerciseValidationError = ValidateExerciseFields(patchedName, patchedSets);
-        if (exerciseValidationError is not null)
+        var patchValidationResult = await mergePatchValidator.ValidateAsync(patchedDto, cancellationToken);
+        if (!patchValidationResult.IsValid)
         {
-            return Result.Failure<ExerciseResponse, Error>(exerciseValidationError);
+            return patchValidationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
         var hasNameConflict = workout.Exercises.Any(e =>
@@ -52,7 +64,8 @@ public class PatchExerciseCommandHandler(
             string.Equals(e.Name, patchedName, StringComparison.OrdinalIgnoreCase));
         if (hasNameConflict)
         {
-            return Result.Failure<ExerciseResponse, Error>(WorkoutErrors.ExerciseAlreadyExists(request.WorkoutId, patchedName!));
+            return Result.Failure<PatchExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseAlreadyExists(request.WorkoutId, patchedName!));
         }
 
         exercise.Name = patchedName!;
@@ -61,57 +74,18 @@ public class PatchExerciseCommandHandler(
         var updateResult = await repository.UpdateAsync(workout, cancellationToken);
         if (updateResult.IsFailure)
         {
-            return Result.Failure<ExerciseResponse, Error>(updateResult.Error);
+            return Result.Failure<PatchExerciseResponse, List<Error>>(updateResult.Error);
         }
 
-        return Result.Success<ExerciseResponse, Error>(MapExerciseToResponse(exercise));
+        return Result.Success<PatchExerciseResponse, List<Error>>(MapExerciseToResponse(exercise));
     }
 
-    private static ExerciseResponse MapExerciseToResponse(Exercise exercise)
+    private static PatchExerciseResponse MapExerciseToResponse(Exercise exercise)
     {
         var setResponses = exercise.Sets
-            .Select(s => new SetResponse(s.Reps, s.Weight))
+            .Select(s => new SetDto(s.Reps, s.Weight))
             .ToList();
 
-        return new ExerciseResponse(exercise.Name, setResponses);
-    }
-
-    private static Error? ValidateExerciseFields(string? name, IReadOnlyList<AddSetDto>? sets)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return WorkoutErrors.ExerciseNameRequired();
-        }
-
-        if (sets is null)
-        {
-            return WorkoutErrors.ExerciseSetsRequired();
-        }
-
-        foreach (var set in sets)
-        {
-            var setValidationError = ValidateSetFields(set.Reps, set.Weight);
-            if (setValidationError is not null)
-            {
-                return setValidationError;
-            }
-        }
-
-        return null;
-    }
-
-    private static Error? ValidateSetFields(int reps, double weight)
-    {
-        if (reps <= 0)
-        {
-            return WorkoutErrors.SetRepsMustBePositive();
-        }
-
-        if (weight < 0)
-        {
-            return WorkoutErrors.SetWeightMustBeNonNegative();
-        }
-
-        return null;
+        return new PatchExerciseResponse(exercise.Name, setResponses);
     }
 }

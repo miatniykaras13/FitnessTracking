@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FitnessTracking.Application.Filters;
-using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
