@@ -7,16 +7,8 @@ using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Abstractions.Repositories;
 
-public interface IWorkoutsRepository
+public interface IWorkoutsRepository : IRepository<Workout, Guid>
 {
-    Task<Result<Workout, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-
-    Task<UnitResult<Error>> AddAsync(Workout workout, CancellationToken cancellationToken);
-
-    Task<UnitResult<Error>> UpdateAsync(Workout workout, CancellationToken cancellationToken);
-
-    Task<UnitResult<Error>> DeleteAsync(Guid id, CancellationToken cancellationToken);
-    
     Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId, WorkoutFilter filter,
         SortParameters sortParameters,
         PageParameters pageParameters,
@@ -70,6 +62,4 @@ public interface IWorkoutsRepository
         string exerciseName,
         int setIndex,
         CancellationToken cancellationToken);
-    
-    Task<Result<Guid, Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken);
 }
