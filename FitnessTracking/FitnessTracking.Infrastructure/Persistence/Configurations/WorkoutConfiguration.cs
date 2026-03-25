@@ -19,7 +19,8 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
                 setBuilder.WithOwner().HasForeignKey("WorkoutId", "Name");
             });
         });
-        
+
+        builder.Ignore(w => w.ProgressPhotos);
         
         builder.HasIndex(w => w.UserId);
     }
