@@ -1,4 +1,4 @@
-namespace FitnessTracking.Application.Responses;
+namespace FitnessTracking.Application.Features.Commands.CreateWorkout;
 
 public record CreateWorkoutResponse(
     Guid WorkoutId,

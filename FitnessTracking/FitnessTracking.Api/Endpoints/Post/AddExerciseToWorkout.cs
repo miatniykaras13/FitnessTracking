@@ -1,8 +1,8 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Application.Requests;
+using FitnessTracking.Application.Features.Commands.AddExercise;
 using FitnessTracking.Shared.Contracts;
+using MediatR;
 
 namespace FitnessTracking.Api.Endpoints.Post;
 
@@ -13,11 +13,11 @@ public class AddExerciseToWorkout : ICarterModule
             Guid workoutId,
             AddExerciseDto dto,
             HttpContext httpContext,
-            IWorkoutsService workoutsService,
+            ISender sender,
             CancellationToken ct = default) =>
         {
-            var request = new AddExerciseRequest(workoutId, dto);
-            var result = await workoutsService.AddExerciseAsync(request, ct);
+            var command = new AddExerciseCommand(workoutId, dto);
+            var result = await sender.Send(command, ct);
 
             return result.ToHttpResult(httpContext, created =>
                 Results.Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(created.Name)}", created));

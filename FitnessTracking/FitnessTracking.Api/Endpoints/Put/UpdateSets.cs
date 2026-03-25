@@ -1,8 +1,8 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Application.Requests;
+using FitnessTracking.Application.Features.Commands.UpdateSets;
 using FitnessTracking.Shared.Contracts;
+using MediatR;
 
 namespace FitnessTracking.Api.Endpoints.Put;
 
@@ -14,11 +14,11 @@ public class UpdateSets : ICarterModule
             string exerciseName,
             UpdateSetsDto dto,
             HttpContext httpContext,
-            IWorkoutsService workoutsService,
+            ISender sender,
             CancellationToken ct = default) =>
         {
-            var request = new UpdateSetsRequest(workoutId, exerciseName, dto);
-            var result = await workoutsService.UpdateSetsAsync(request, ct);
+            var command = new UpdateSetsCommand(workoutId, exerciseName, dto);
+            var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
         .WithTags("Sets")

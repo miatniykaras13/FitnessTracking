@@ -1,7 +1,7 @@
 ﻿using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Application.Requests;
+using FitnessTracking.Application.Features.Queries.GetWorkoutById;
+using MediatR;
 
 namespace FitnessTracking.Api.Endpoints.Get;
 
@@ -11,11 +11,11 @@ public class GetWorkoutById : ICarterModule
         app.MapGet("/workouts/{workoutId:guid}", async (
             Guid workoutId,
             HttpContext httpContext,
-            IWorkoutsService workoutsService,
+            ISender sender,
             CancellationToken ct = default) =>
         {
-            var request = new GetWorkoutByIdRequest(workoutId);
-            var workoutResponse = await workoutsService.GetByIdAsync(request, ct);
+            var query = new GetWorkoutByIdQuery(workoutId);
+            var workoutResponse = await sender.Send(query, ct);
             return workoutResponse.ToHttpResult(httpContext);
         })
         .WithTags("Workouts")

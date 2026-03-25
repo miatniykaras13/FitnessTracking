@@ -2,9 +2,9 @@
 using System.Text.Json.Nodes;
 using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Application.Requests;
+using FitnessTracking.Application.Features.Commands.PatchSet;
 using FitnessTracking.Shared.Contracts;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessTracking.Api.Endpoints.Patch;
@@ -18,7 +18,7 @@ public class PatchSet : ICarterModule
             int setIndex,
             HttpRequest httpRequest,
             HttpContext httpContext,
-            IWorkoutsService workoutsService,
+            ISender sender,
             CancellationToken ct = default) =>
         {
             var patchObject =
@@ -32,8 +32,8 @@ public class PatchSet : ICarterModule
                 throw new InvalidOperationException("Patch body must be a JsonObject");
             }
 
-            var request = new PatchSetRequest(workoutId, exerciseName, setIndex, patchObject);
-            var result = await workoutsService.PatchSetAsync(request, ct);
+            var command = new PatchSetCommand(workoutId, exerciseName, setIndex, patchObject);
+            var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
         .WithTags("Sets")
