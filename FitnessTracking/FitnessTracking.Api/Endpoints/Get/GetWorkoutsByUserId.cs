@@ -3,8 +3,8 @@ using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Requests;
 using FitnessTracking.Application.Sorting;
-using FitnessTracking.Shared.Contracts.Requests;
 
 namespace FitnessTracking.Api.Endpoints.Get;
 

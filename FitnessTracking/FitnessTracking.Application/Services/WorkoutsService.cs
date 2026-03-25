@@ -4,12 +4,12 @@ using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Requests;
+using FitnessTracking.Application.Responses;
 using FitnessTracking.Application.Sorting;
-using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Contracts.Requests;
-using FitnessTracking.Shared.Contracts.Responses;
+using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Services;

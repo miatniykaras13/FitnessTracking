@@ -1,8 +1,8 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Shared.Contracts.Dtos;
-using FitnessTracking.Shared.Contracts.Requests;
+using FitnessTracking.Application.Requests;
+using FitnessTracking.Shared.Contracts;
 
 namespace FitnessTracking.Api.Endpoints.Post;
 

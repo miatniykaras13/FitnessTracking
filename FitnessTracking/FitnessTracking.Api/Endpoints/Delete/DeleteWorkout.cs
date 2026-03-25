@@ -1,7 +1,7 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Shared.Contracts.Requests;
+using FitnessTracking.Application.Requests;
 
 namespace FitnessTracking.Api.Endpoints.Delete;
 
