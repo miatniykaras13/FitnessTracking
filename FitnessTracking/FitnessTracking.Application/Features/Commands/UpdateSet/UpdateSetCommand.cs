@@ -9,4 +9,4 @@ public record UpdateSetCommand(
     Guid WorkoutId,
     string ExerciseName,
     int SetIndex,
-    UpdateSetDto SetDto) : ICommand<Result<UpdateSetResponse, Error>>;
+    UpdateSetDto SetDto) : ICommand<Result<UpdateSetResponse, List<Error>>>;

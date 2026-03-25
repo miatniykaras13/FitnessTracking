@@ -8,4 +8,4 @@ namespace FitnessTracking.Application.Features.Commands.AddSet;
 public record AddSetCommand(
     Guid WorkoutId,
     string ExerciseName,
-    AddSetDto SetDto) : ICommand<Result<AddSetResponse, Error>>;
+    AddSetDto SetDto) : ICommand<Result<AddSetResponse, List<Error>>>;

@@ -1,24 +1,27 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.UpdateSets;
 
-public class UpdateSetsCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<UpdateSetsCommand, Result<UpdateSetsResponse, Error>>
+public class UpdateSetsCommandHandler(
+    IWorkoutsRepository repository,
+    IValidator<UpdateSetsCommand> validator)
+    : ICommandHandler<UpdateSetsCommand, Result<UpdateSetsResponse, List<Error>>>
 {
-    public async Task<Result<UpdateSetsResponse, Error>> Handle(UpdateSetsCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UpdateSetsResponse, List<Error>>> Handle(
+        UpdateSetsCommand request,
+        CancellationToken cancellationToken)
     {
-        foreach (var setDto in request.SetDtos.Sets)
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            var setValidationError = ValidateSetFields(setDto.Reps, setDto.Weight);
-            if (setValidationError is not null)
-            {
-                return Result.Failure<UpdateSetsResponse, Error>(setValidationError);
-            }
+            return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
         var sets = request.SetDtos.Sets.Select(s => new Set
@@ -34,25 +37,10 @@ public class UpdateSetsCommandHandler(IWorkoutsRepository repository)
             cancellationToken);
         if (updateResult.IsFailure)
         {
-            return Result.Failure<UpdateSetsResponse, Error>(updateResult.Error);
+            return Result.Failure<UpdateSetsResponse, List<Error>>(updateResult.Error);
         }
 
-        return Result.Success<UpdateSetsResponse, Error>(
+        return Result.Success<UpdateSetsResponse, List<Error>>(
             new UpdateSetsResponse(sets.Select(s => new SetDto(s.Reps, s.Weight)).ToList()));
-    }
-
-    private static Error? ValidateSetFields(int reps, double weight)
-    {
-        if (reps <= 0)
-        {
-            return WorkoutErrors.SetRepsMustBePositive();
-        }
-
-        if (weight < 0)
-        {
-            return WorkoutErrors.SetWeightMustBeNonNegative();
-        }
-
-        return null;
     }
 }

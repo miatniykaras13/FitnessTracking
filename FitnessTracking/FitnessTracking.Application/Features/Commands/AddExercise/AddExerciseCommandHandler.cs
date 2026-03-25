@@ -1,21 +1,25 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.AddExercise;
 
-public class AddExerciseCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<AddExerciseCommand, Result<AddExerciseResponse, Error>>
+public class AddExerciseCommandHandler(
+    IWorkoutsRepository repository,
+    IValidator<AddExerciseCommand> validator)
+    : ICommandHandler<AddExerciseCommand, Result<AddExerciseResponse, List<Error>>>
 {
-    public async Task<Result<AddExerciseResponse, Error>> Handle(AddExerciseCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AddExerciseResponse, List<Error>>> Handle(AddExerciseCommand request, CancellationToken cancellationToken)
     {
-        var exerciseValidationError = ValidateExerciseFields(request.ExerciseDto.Name, request.ExerciseDto.Sets);
-        if (exerciseValidationError is not null)
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return Result.Failure<AddExerciseResponse, Error>(exerciseValidationError);
+            return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
         var exercise = new Exercise
@@ -27,10 +31,10 @@ public class AddExerciseCommandHandler(IWorkoutsRepository repository)
         var addResult = await repository.AddExerciseAsync(request.WorkoutId, exercise, cancellationToken);
         if (addResult.IsFailure)
         {
-            return Result.Failure<AddExerciseResponse, Error>(addResult.Error);
+            return Result.Failure<AddExerciseResponse, List<Error>>(addResult.Error);
         }
 
-        return Result.Success<AddExerciseResponse, Error>(MapExerciseToResponse(exercise));
+        return Result.Success<AddExerciseResponse, List<Error>>(MapExerciseToResponse(exercise));
     }
 
     private static AddExerciseResponse MapExerciseToResponse(Exercise exercise)
@@ -49,44 +53,5 @@ public class AddExerciseCommandHandler(IWorkoutsRepository repository)
             Reps = s.Reps,
             Weight = s.Weight
         }).ToList();
-    }
-
-    private static Error? ValidateExerciseFields(string? name, IReadOnlyList<AddSetDto>? sets)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return WorkoutErrors.ExerciseNameRequired();
-        }
-
-        if (sets is null)
-        {
-            return WorkoutErrors.ExerciseSetsRequired();
-        }
-
-        foreach (var set in sets)
-        {
-            var setValidationError = ValidateSetFields(set.Reps, set.Weight);
-            if (setValidationError is not null)
-            {
-                return setValidationError;
-            }
-        }
-
-        return null;
-    }
-
-    private static Error? ValidateSetFields(int reps, double weight)
-    {
-        if (reps <= 0)
-        {
-            return WorkoutErrors.SetRepsMustBePositive();
-        }
-
-        if (weight < 0)
-        {
-            return WorkoutErrors.SetWeightMustBeNonNegative();
-        }
-
-        return null;
     }
 }

@@ -2,23 +2,36 @@ using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Enums;
+using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.PatchWorkout;
 
 public class PatchWorkoutCommandHandler(
     IWorkoutsRepository repository,
-    IMergePatchHelper mergePatchHelper)
-    : ICommandHandler<PatchWorkoutCommand, Result<PatchWorkoutResponse, Error>>
+    IMergePatchHelper mergePatchHelper,
+    IValidator<PatchWorkoutCommand> validator,
+    IValidator<MergePatchWorkoutDto> mergePatchValidator)
+    : ICommandHandler<PatchWorkoutCommand, Result<PatchWorkoutResponse, List<Error>>>
 {
-    public async Task<Result<PatchWorkoutResponse, Error>> Handle(PatchWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PatchWorkoutResponse, List<Error>>> Handle(
+        PatchWorkoutCommand request,
+        CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
+        }
+
         var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<PatchWorkoutResponse, Error>(workoutResult.Error);
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(workoutResult.Error);
         }
 
         var workout = workoutResult.Value;
@@ -33,59 +46,40 @@ public class PatchWorkoutCommandHandler(
         };
         var patchedDto = mergePatchHelper.ApplyMergePatch(currentDto, request.Patch);
 
-        var title = patchedDto.Title;
-        var type = patchedDto.Type;
-        var duration = patchedDto.Duration;
-        var caloriesBurned = patchedDto.CaloriesBurned;
-        var workoutDate = patchedDto.WorkoutDate;
-
-        if (string.IsNullOrWhiteSpace(title))
+        var patchValidationResult = await mergePatchValidator.ValidateAsync(patchedDto, cancellationToken);
+        if (!patchValidationResult.IsValid)
         {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.TitleRequired());
+            return patchValidationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        if (string.IsNullOrWhiteSpace(type))
-        {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.TypeRequired());
-        }
-
-        if (duration is null || duration.Value <= TimeSpan.Zero)
-        {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.DurationMustBePositive());
-        }
-
-        if (caloriesBurned is null or < 0)
-        {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.CaloriesBurnedMustBeNonNegative());
-        }
-
-        if (workoutDate is null || workoutDate.Value == default)
-        {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.WorkoutDateRequired());
-        }
+        var title = patchedDto.Title!;
+        var type = patchedDto.Type!;
+        var duration = patchedDto.Duration!.Value;
+        var caloriesBurned = patchedDto.CaloriesBurned!.Value;
+        var workoutDate = patchedDto.WorkoutDate!.Value;
 
         if (!Enum.TryParse<WorkoutType>(type, true, out var workoutType))
         {
-            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(type));
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(WorkoutErrors.InvalidWorkoutType(type));
         }
 
         workout.Title = title;
         workout.Type = workoutType;
-        workout.Duration = duration.Value;
-        workout.CaloriesBurned = caloriesBurned.Value;
-        workout.WorkoutDate = workoutDate.Value;
+        workout.Duration = duration;
+        workout.CaloriesBurned = caloriesBurned;
+        workout.WorkoutDate = workoutDate;
 
         var updateResult = await repository.UpdateAsync(workout, cancellationToken);
 
         if (updateResult.IsFailure)
         {
-            return Result.Failure<PatchWorkoutResponse, Error>(updateResult.Error);
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(updateResult.Error);
         }
 
-        return Result.Success<PatchWorkoutResponse, Error>(MapToResponse(workout));
+        return Result.Success<PatchWorkoutResponse, List<Error>>(MapToResponse(workout));
     }
 
-    private static PatchWorkoutResponse MapToResponse(Domain.Models.Workout workout)
+    private static PatchWorkoutResponse MapToResponse(Workout workout)
     {
         return new PatchWorkoutResponse(
             Guid.Parse(workout.Id),

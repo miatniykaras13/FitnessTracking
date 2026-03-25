@@ -7,4 +7,4 @@ namespace FitnessTracking.Application.Features.Commands.DeleteSet;
 public record DeleteSetCommand(
     Guid WorkoutId,
     string ExerciseName,
-    int SetIndex) : ICommand<UnitResult<Error>>;
+    int SetIndex) : ICommand<UnitResult<List<Error>>>;

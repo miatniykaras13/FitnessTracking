@@ -9,4 +9,4 @@ public record PatchSetCommand(
     Guid WorkoutId,
     string ExerciseName,
     int SetIndex,
-    JsonObject Patch) : ICommand<Result<PatchSetResponse, Error>>;
+    JsonObject Patch) : ICommand<Result<PatchSetResponse, List<Error>>>;

@@ -7,5 +7,5 @@ namespace FitnessTracking.Application.Features.Commands.CreateWorkout;
 
 public record CreateWorkoutCommand(
 	Guid UserId,
-	CreateWorkoutDto WorkoutDto) : ICommand<Result<CreateWorkoutResponse, Error>>;
+	CreateWorkoutDto WorkoutDto) : ICommand<Result<CreateWorkoutResponse, List<Error>>>;
 

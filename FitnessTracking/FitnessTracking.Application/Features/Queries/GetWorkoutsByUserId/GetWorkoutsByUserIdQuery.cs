@@ -11,4 +11,4 @@ public record GetWorkoutsByUserIdQuery(
     Guid UserId,
     WorkoutFilter Filter,
     SortParameters SortParameters,
-    PageParameters PageParameters) : IQuery<Result<GetWorkoutsByUserIdResponse, Error>>;
+    PageParameters PageParameters) : IQuery<Result<GetWorkoutsByUserIdResponse, List<Error>>>;

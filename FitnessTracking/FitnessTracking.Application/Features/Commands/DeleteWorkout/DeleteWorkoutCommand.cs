@@ -6,4 +6,4 @@ namespace FitnessTracking.Application.Features.Commands.DeleteWorkout;
 
 public record DeleteWorkoutCommand(
     Guid WorkoutId,
-    Guid UserId) : ICommand<UnitResult<Error>>;
+    Guid UserId) : ICommand<UnitResult<List<Error>>>;

@@ -7,4 +7,4 @@ namespace FitnessTracking.Application.Features.Commands.AddExercise;
 
 public record AddExerciseCommand(
     Guid WorkoutId,
-    AddExerciseDto ExerciseDto) : ICommand<Result<AddExerciseResponse, Error>>;
+    AddExerciseDto ExerciseDto) : ICommand<Result<AddExerciseResponse, List<Error>>>;

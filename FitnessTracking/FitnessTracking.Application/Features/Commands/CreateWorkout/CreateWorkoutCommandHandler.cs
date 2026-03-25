@@ -1,36 +1,32 @@
 ﻿using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.CreateWorkout;
 
-public class CreateWorkoutCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<CreateWorkoutCommand, Result<CreateWorkoutResponse, Error>>
+public class CreateWorkoutCommandHandler(
+    IWorkoutsRepository repository,
+    IValidator<CreateWorkoutCommand> validator)
+    : ICommandHandler<CreateWorkoutCommand, Result<CreateWorkoutResponse, List<Error>>>
 {
-    public async Task<Result<CreateWorkoutResponse, Error>> Handle(CreateWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CreateWorkoutResponse, List<Error>>> Handle(CreateWorkoutCommand request,
+        CancellationToken cancellationToken)
     {
-        if (request.UserId == Guid.Empty)
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return Result.Failure<CreateWorkoutResponse, Error>(WorkoutErrors.UserIdRequired());
-        }
-
-        var workoutValidationError = ValidateWorkoutFields(
-            request.WorkoutDto.Title,
-            request.WorkoutDto.Type,
-            request.WorkoutDto.Duration,
-            request.WorkoutDto.CaloriesBurned,
-            request.WorkoutDto.WorkoutDate);
-        if (workoutValidationError is not null)
-        {
-            return Result.Failure<CreateWorkoutResponse, Error>(workoutValidationError);
+            return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
         if (!Enum.TryParse<WorkoutType>(request.WorkoutDto.Type, true, out var workoutType))
         {
-            return Result.Failure<CreateWorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
+            return Result.Failure<CreateWorkoutResponse, List<Error>>(
+                WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
         }
 
         var workoutId = Guid.NewGuid();
@@ -50,7 +46,7 @@ public class CreateWorkoutCommandHandler(IWorkoutsRepository repository)
 
         if (addResult.IsFailure)
         {
-            return Result.Failure<CreateWorkoutResponse, Error>(addResult.Error);
+            return Result.Failure<CreateWorkoutResponse, List<Error>>(addResult.Error);
         }
 
         var response = new CreateWorkoutResponse(
@@ -63,41 +59,6 @@ public class CreateWorkoutCommandHandler(IWorkoutsRepository repository)
             workout.WorkoutDate,
             workout.CreatedAt);
 
-        return Result.Success<CreateWorkoutResponse, Error>(response);
-    }
-
-    private static Error? ValidateWorkoutFields(
-        string? title,
-        string? type,
-        TimeSpan duration,
-        int caloriesBurned,
-        DateTime workoutDate)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return WorkoutErrors.TitleRequired();
-        }
-
-        if (string.IsNullOrWhiteSpace(type))
-        {
-            return WorkoutErrors.TypeRequired();
-        }
-
-        if (duration <= TimeSpan.Zero)
-        {
-            return WorkoutErrors.DurationMustBePositive();
-        }
-
-        if (caloriesBurned < 0)
-        {
-            return WorkoutErrors.CaloriesBurnedMustBeNonNegative();
-        }
-
-        if (workoutDate == default)
-        {
-            return WorkoutErrors.WorkoutDateRequired();
-        }
-
-        return null;
+        return Result.Success<CreateWorkoutResponse, List<Error>>(response);
     }
 }

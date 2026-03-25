@@ -4,4 +4,4 @@ using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Features.Queries.GetWorkoutById;
 
-public record GetWorkoutByIdQuery(Guid WorkoutId) : IQuery<Result<GetWorkoutByIdResponse, Error>>;
+public record GetWorkoutByIdQuery(Guid WorkoutId) : IQuery<Result<GetWorkoutByIdResponse, List<Error>>>;

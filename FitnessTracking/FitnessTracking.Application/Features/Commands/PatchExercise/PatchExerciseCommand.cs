@@ -8,4 +8,4 @@ namespace FitnessTracking.Application.Features.Commands.PatchExercise;
 public record PatchExerciseCommand(
     Guid WorkoutId,
     string ExerciseName,
-    JsonObject Patch) : ICommand<Result<PatchExerciseResponse, Error>>;
+    JsonObject Patch) : ICommand<Result<PatchExerciseResponse, List<Error>>>;

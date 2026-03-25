@@ -1,20 +1,24 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
+using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.AddSet;
 
-public class AddSetCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<AddSetCommand, Result<AddSetResponse, Error>>
+public class AddSetCommandHandler(
+    IWorkoutsRepository repository,
+    IValidator<AddSetCommand> validator)
+    : ICommandHandler<AddSetCommand, Result<AddSetResponse, List<Error>>>
 {
-    public async Task<Result<AddSetResponse, Error>> Handle(AddSetCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AddSetResponse, List<Error>>> Handle(AddSetCommand request, CancellationToken cancellationToken)
     {
-        var setValidationError = ValidateSetFields(request.SetDto.Reps, request.SetDto.Weight);
-        if (setValidationError is not null)
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return Result.Failure<AddSetResponse, Error>(setValidationError);
+            return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
         var set = new Set
@@ -26,24 +30,9 @@ public class AddSetCommandHandler(IWorkoutsRepository repository)
         var addResult = await repository.AddSetAsync(request.WorkoutId, request.ExerciseName, set, cancellationToken);
         if (addResult.IsFailure)
         {
-            return Result.Failure<AddSetResponse, Error>(addResult.Error);
+            return Result.Failure<AddSetResponse, List<Error>>(addResult.Error);
         }
 
-        return Result.Success<AddSetResponse, Error>(new AddSetResponse(set.Reps, set.Weight));
-    }
-
-    private static Error? ValidateSetFields(int reps, double weight)
-    {
-        if (reps <= 0)
-        {
-            return WorkoutErrors.SetRepsMustBePositive();
-        }
-
-        if (weight < 0)
-        {
-            return WorkoutErrors.SetWeightMustBeNonNegative();
-        }
-
-        return null;
+        return new AddSetResponse(set.Reps, set.Weight);
     }
 }

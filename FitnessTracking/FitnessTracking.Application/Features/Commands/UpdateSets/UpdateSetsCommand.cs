@@ -8,4 +8,4 @@ namespace FitnessTracking.Application.Features.Commands.UpdateSets;
 public record UpdateSetsCommand(
     Guid WorkoutId,
     string ExerciseName,
-    UpdateSetsDto SetDtos) : ICommand<Result<UpdateSetsResponse, Error>>;
+    UpdateSetsDto SetDtos) : ICommand<Result<UpdateSetsResponse, List<Error>>>;

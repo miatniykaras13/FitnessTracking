@@ -70,5 +70,7 @@ public class Error
     public static Error Custom(string code, string? message = null, ErrorType? errorType = null) =>
         new(code, errorType ?? ErrorType.Unknown, message);
 
+    public string GetName() => $"{Type.ToString()}Error";
+
     public static implicit operator List<Error>(Error error) => [error];
 }
