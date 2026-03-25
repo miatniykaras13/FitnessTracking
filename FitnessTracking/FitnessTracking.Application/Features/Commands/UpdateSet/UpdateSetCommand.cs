@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
-using FitnessTracking.Application.Responses;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
 
@@ -10,4 +9,4 @@ public record UpdateSetCommand(
     Guid WorkoutId,
     string ExerciseName,
     int SetIndex,
-    UpdateSetDto SetDto) : ICommand<Result<SetResponse, Error>>;
+    UpdateSetDto SetDto) : ICommand<Result<UpdateSetResponse, Error>>;

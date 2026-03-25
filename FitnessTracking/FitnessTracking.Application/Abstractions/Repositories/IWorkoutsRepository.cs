@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Filters;
-using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;

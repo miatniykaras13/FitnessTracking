@@ -1,7 +1,6 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
@@ -9,14 +8,14 @@ using FitnessTracking.Shared.Errors;
 namespace FitnessTracking.Application.Features.Commands.AddExercise;
 
 public class AddExerciseCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<AddExerciseCommand, Result<ExerciseResponse, Error>>
+    : ICommandHandler<AddExerciseCommand, Result<AddExerciseResponse, Error>>
 {
-    public async Task<Result<ExerciseResponse, Error>> Handle(AddExerciseCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AddExerciseResponse, Error>> Handle(AddExerciseCommand request, CancellationToken cancellationToken)
     {
         var exerciseValidationError = ValidateExerciseFields(request.ExerciseDto.Name, request.ExerciseDto.Sets);
         if (exerciseValidationError is not null)
         {
-            return Result.Failure<ExerciseResponse, Error>(exerciseValidationError);
+            return Result.Failure<AddExerciseResponse, Error>(exerciseValidationError);
         }
 
         var exercise = new Exercise
@@ -28,19 +27,19 @@ public class AddExerciseCommandHandler(IWorkoutsRepository repository)
         var addResult = await repository.AddExerciseAsync(request.WorkoutId, exercise, cancellationToken);
         if (addResult.IsFailure)
         {
-            return Result.Failure<ExerciseResponse, Error>(addResult.Error);
+            return Result.Failure<AddExerciseResponse, Error>(addResult.Error);
         }
 
-        return Result.Success<ExerciseResponse, Error>(MapExerciseToResponse(exercise));
+        return Result.Success<AddExerciseResponse, Error>(MapExerciseToResponse(exercise));
     }
 
-    private static ExerciseResponse MapExerciseToResponse(Exercise exercise)
+    private static AddExerciseResponse MapExerciseToResponse(Exercise exercise)
     {
         var setResponses = exercise.Sets
-            .Select(s => new SetResponse(s.Reps, s.Weight))
+            .Select(s => new SetDto(s.Reps, s.Weight))
             .ToList();
 
-        return new ExerciseResponse(exercise.Name, setResponses);
+        return new AddExerciseResponse(exercise.Name, setResponses);
     }
 
     private static List<Set> MapSetDtos(IReadOnlyList<AddSetDto> setDtos)

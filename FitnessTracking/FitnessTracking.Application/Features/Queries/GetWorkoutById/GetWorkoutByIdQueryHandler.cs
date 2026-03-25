@@ -1,16 +1,15 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Features.Queries.GetWorkoutById;
 
 public class GetWorkoutByIdQueryHandler(IWorkoutsRepository repository)
-    : IQueryHandler<GetWorkoutByIdQuery, Result<WorkoutResponse, Error>>
+    : IQueryHandler<GetWorkoutByIdQuery, Result<GetWorkoutByIdResponse, Error>>
 {
-    public async Task<Result<WorkoutResponse, Error>> Handle(
+    public async Task<Result<GetWorkoutByIdResponse, Error>> Handle(
         GetWorkoutByIdQuery request,
         CancellationToken cancellationToken)
     {
@@ -18,15 +17,15 @@ public class GetWorkoutByIdQueryHandler(IWorkoutsRepository repository)
 
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(workoutResult.Error);
+            return Result.Failure<GetWorkoutByIdResponse, Error>(workoutResult.Error);
         }
 
-        return Result.Success<WorkoutResponse, Error>(MapToResponse(workoutResult.Value));
+        return Result.Success<GetWorkoutByIdResponse, Error>(MapToResponse(workoutResult.Value));
     }
 
-    private static WorkoutResponse MapToResponse(Workout workout)
+    private static GetWorkoutByIdResponse MapToResponse(Workout workout)
     {
-        return new WorkoutResponse(
+        return new GetWorkoutByIdResponse(
             Guid.Parse(workout.Id),
             Guid.Parse(workout.UserId),
             workout.Title,

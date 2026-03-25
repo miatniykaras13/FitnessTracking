@@ -2,7 +2,6 @@ using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Shared.Contracts;
 using FitnessTracking.Shared.Errors;
@@ -12,14 +11,14 @@ namespace FitnessTracking.Application.Features.Commands.PatchWorkout;
 public class PatchWorkoutCommandHandler(
     IWorkoutsRepository repository,
     IMergePatchHelper mergePatchHelper)
-    : ICommandHandler<PatchWorkoutCommand, Result<WorkoutResponse, Error>>
+    : ICommandHandler<PatchWorkoutCommand, Result<PatchWorkoutResponse, Error>>
 {
-    public async Task<Result<WorkoutResponse, Error>> Handle(PatchWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PatchWorkoutResponse, Error>> Handle(PatchWorkoutCommand request, CancellationToken cancellationToken)
     {
         var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(workoutResult.Error);
+            return Result.Failure<PatchWorkoutResponse, Error>(workoutResult.Error);
         }
 
         var workout = workoutResult.Value;
@@ -42,32 +41,32 @@ public class PatchWorkoutCommandHandler(
 
         if (string.IsNullOrWhiteSpace(title))
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.TitleRequired());
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.TitleRequired());
         }
 
         if (string.IsNullOrWhiteSpace(type))
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.TypeRequired());
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.TypeRequired());
         }
 
         if (duration is null || duration.Value <= TimeSpan.Zero)
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.DurationMustBePositive());
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.DurationMustBePositive());
         }
 
         if (caloriesBurned is null or < 0)
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.CaloriesBurnedMustBeNonNegative());
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.CaloriesBurnedMustBeNonNegative());
         }
 
         if (workoutDate is null || workoutDate.Value == default)
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.WorkoutDateRequired());
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.WorkoutDateRequired());
         }
 
         if (!Enum.TryParse<WorkoutType>(type, true, out var workoutType))
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(type));
+            return Result.Failure<PatchWorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(type));
         }
 
         workout.Title = title;
@@ -80,15 +79,15 @@ public class PatchWorkoutCommandHandler(
 
         if (updateResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(updateResult.Error);
+            return Result.Failure<PatchWorkoutResponse, Error>(updateResult.Error);
         }
 
-        return Result.Success<WorkoutResponse, Error>(MapToResponse(workout));
+        return Result.Success<PatchWorkoutResponse, Error>(MapToResponse(workout));
     }
 
-    private static WorkoutResponse MapToResponse(Domain.Models.Workout workout)
+    private static PatchWorkoutResponse MapToResponse(Domain.Models.Workout workout)
     {
-        return new WorkoutResponse(
+        return new PatchWorkoutResponse(
             Guid.Parse(workout.Id),
             Guid.Parse(workout.UserId),
             workout.Title,

@@ -1,20 +1,19 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
-using FitnessTracking.Application.Responses;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Features.Commands.UpdateWorkout;
 
 public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
-    : ICommandHandler<UpdateWorkoutCommand, Result<WorkoutResponse, Error>>
+    : ICommandHandler<UpdateWorkoutCommand, Result<UpdateWorkoutResponse, Error>>
 {
-    public async Task<Result<WorkoutResponse, Error>> Handle(UpdateWorkoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<UpdateWorkoutResponse, Error>> Handle(UpdateWorkoutCommand request, CancellationToken cancellationToken)
     {
         if (request.UserId == Guid.Empty)
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.UserIdRequired());
+            return Result.Failure<UpdateWorkoutResponse, Error>(WorkoutErrors.UserIdRequired());
         }
 
         var workoutValidationError = ValidateWorkoutFields(
@@ -25,18 +24,18 @@ public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
             request.WorkoutDto.WorkoutDate);
         if (workoutValidationError is not null)
         {
-            return Result.Failure<WorkoutResponse, Error>(workoutValidationError);
+            return Result.Failure<UpdateWorkoutResponse, Error>(workoutValidationError);
         }
 
         if (!Enum.TryParse<WorkoutType>(request.WorkoutDto.Type, true, out var workoutType))
         {
-            return Result.Failure<WorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
+            return Result.Failure<UpdateWorkoutResponse, Error>(WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
         }
 
         var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
         if (workoutResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(workoutResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, Error>(workoutResult.Error);
         }
 
         var workout = workoutResult.Value;
@@ -51,15 +50,15 @@ public class UpdateWorkoutCommandHandler(IWorkoutsRepository repository)
 
         if (updateResult.IsFailure)
         {
-            return Result.Failure<WorkoutResponse, Error>(updateResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, Error>(updateResult.Error);
         }
 
-        return Result.Success<WorkoutResponse, Error>(MapToResponse(workout));
+        return Result.Success<UpdateWorkoutResponse, Error>(MapToResponse(workout));
     }
 
-    private static WorkoutResponse MapToResponse(Domain.Models.Workout workout)
+    private static UpdateWorkoutResponse MapToResponse(Domain.Models.Workout workout)
     {
-        return new WorkoutResponse(
+        return new UpdateWorkoutResponse(
             Guid.Parse(workout.Id),
             Guid.Parse(workout.UserId),
             workout.Title,
