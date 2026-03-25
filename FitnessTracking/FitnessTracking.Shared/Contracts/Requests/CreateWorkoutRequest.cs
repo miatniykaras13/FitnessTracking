@@ -1,8 +1,0 @@
-using FitnessTracking.Shared.Contracts.Dtos;
-
-namespace FitnessTracking.Shared.Contracts.Requests;
-
-public record CreateWorkoutRequest(
-	Guid UserId,
-	CreateWorkoutDto WorkoutDto);
-

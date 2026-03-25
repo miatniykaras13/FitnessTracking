@@ -1,10 +1,10 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
+using FitnessTracking.Application.Features.Queries.GetWorkoutsByUserId;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
-using FitnessTracking.Shared.Contracts.Requests;
+using MediatR;
 
 namespace FitnessTracking.Api.Endpoints.Get;
 
@@ -17,16 +17,11 @@ public class GetWorkoutsByUserId : ICarterModule
                 [AsParameters] SortParameters sortParameters,
                 [AsParameters] PageParameters pageParameters,
                 HttpContext httpContext,
-                IWorkoutsService workoutsService,
+                ISender sender,
                 CancellationToken ct = default) =>
             {
-                var request = new GetWorkoutsByUserIdRequest(userId);
-                var response = await workoutsService.GetByUserIdAsync(
-                    request,
-                    filter,
-                    sortParameters,
-                    pageParameters,
-                    ct);
+                var query = new GetWorkoutsByUserIdQuery(userId, filter, sortParameters, pageParameters);
+                var response = await sender.Send(query, ct);
                 return response.ToHttpResult(httpContext);
             })
             .WithTags("Workouts")

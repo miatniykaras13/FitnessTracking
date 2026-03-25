@@ -1,7 +1,7 @@
 using Carter;
 using FitnessTracking.Api.Extensions;
-using FitnessTracking.Application.Abstractions;
-using FitnessTracking.Shared.Contracts.Requests;
+using FitnessTracking.Application.Features.Commands.DeleteSet;
+using MediatR;
 
 namespace FitnessTracking.Api.Endpoints.Delete;
 
@@ -13,11 +13,11 @@ public class DeleteSet : ICarterModule
             string exerciseName,
             int setIndex,
             HttpContext httpContext,
-            IWorkoutsService workoutsService,
+            ISender sender,
             CancellationToken ct = default) =>
         {
-            var request = new DeleteSetRequest(workoutId, exerciseName, setIndex);
-            var result = await workoutsService.DeleteSetAsync(request, ct);
+            var command = new DeleteSetCommand(workoutId, exerciseName, setIndex);
+            var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
         .WithTags("Sets")
