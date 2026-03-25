@@ -1,6 +1,7 @@
 using FitnessTracking.Api;
 using Carter;
 using FitnessTracking.Api.Middleware;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,16 @@ services.AddProgramDependencies(configuration);
 
 var app = builder.Build();
 
+var uploadsRoot = Path.Combine(builder.Environment.ContentRootPath, configuration["FileStorage:RootPath"] ?? "uploads");
+Directory.CreateDirectory(uploadsRoot);
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsRoot),
+    RequestPath = "/uploads"
+});
 
 app.MapCarter();
 

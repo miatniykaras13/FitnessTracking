@@ -19,7 +19,11 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
                 setBuilder.WithOwner().HasForeignKey("WorkoutId", "Name");
             });
         });
-        
+
+        builder.HasMany(w => w.ProgressPhotos)
+            .WithOne(p => p.Workout)
+            .HasForeignKey(p => p.WorkoutId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasIndex(w => w.UserId);
     }

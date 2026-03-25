@@ -23,7 +23,7 @@ public class GetWorkoutByIdQueryHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        var workoutResult = await repository.GetByIdWithPhotosAsync(request.WorkoutId, cancellationToken);
 
         if (workoutResult.IsFailure)
         {
@@ -43,6 +43,7 @@ public class GetWorkoutByIdQueryHandler(
             workout.Duration,
             workout.CaloriesBurned,
             workout.WorkoutDate,
-            workout.CreatedAt);
+            workout.CreatedAt,
+            workout.ProgressPhotos.Select(p => p.Id));
     }
 }

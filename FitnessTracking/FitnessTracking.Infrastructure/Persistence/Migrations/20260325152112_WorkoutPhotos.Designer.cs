@@ -3,6 +3,7 @@ using System;
 using FitnessTracking.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FitnessTracking.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(FitnessTrackingDbContext))]
-    partial class FitnessTrackingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260325152112_WorkoutPhotos")]
+    partial class WorkoutPhotos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,17 +137,12 @@ namespace FitnessTracking.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("FitnessTracking.Domain.Models.WorkoutPhoto", b =>
                 {
                     b.HasOne("FitnessTracking.Domain.Models.Workout", "Workout")
-                        .WithMany("ProgressPhotos")
+                        .WithMany()
                         .HasForeignKey("WorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Workout");
-                });
-
-            modelBuilder.Entity("FitnessTracking.Domain.Models.Workout", b =>
-                {
-                    b.Navigation("ProgressPhotos");
                 });
 #pragma warning restore 612, 618
         }

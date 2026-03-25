@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
+using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
@@ -9,7 +10,9 @@ using FluentValidation;
 namespace FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 
 public class AddPhotosToWorkoutCommandHandler(
-    IWorkoutsRepository repository,
+    ILocalFileStorage fileStorage,
+    IWorkoutPhotosRepository photosRepository,
+    IWorkoutsRepository workoutsRepository,
     IValidator<AddPhotosToWorkoutCommand> validator)
     : ICommandHandler<AddPhotosToWorkoutCommand, Result<AddPhotosToWorkoutResponse, List<Error>>>
 {
@@ -21,13 +24,46 @@ public class AddPhotosToWorkoutCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var photoIdResult = await repository.AddPhotosToWorkoutAsync(request.WorkoutId, cancellationToken);
-
-        if (photoIdResult.IsFailure)
+        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(photoIdResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(workoutResult.Error);
         }
 
-        return new AddPhotosToWorkoutResponse(photoIdResult.Value);
+        var pathResult = await fileStorage.SaveWorkoutPhotoAsync(
+            request.WorkoutId,
+            request.FileName,
+            request.FileContent,
+            cancellationToken);
+        if (pathResult.IsFailure)
+        {
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(pathResult.Error);
+        }
+
+        var workout = workoutResult.Value;
+        var photoId = Guid.NewGuid();
+        var photo = new WorkoutPhoto
+        {
+            Id = photoId.ToString(),
+            Path = pathResult.Value,
+            WorkoutId = workout.Id,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var addPhotoResult = await photosRepository.AddAsync(photo, cancellationToken);
+        if (addPhotoResult.IsFailure)
+        {
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(addPhotoResult.Error);
+        }
+
+        workout.ProgressPhotos.Add(photo);
+
+        var updateWorkoutResult = await workoutsRepository.UpdateAsync(workout, cancellationToken);
+        if (updateWorkoutResult.IsFailure)
+        {
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(updateWorkoutResult.Error);
+        }
+
+        return new AddPhotosToWorkoutResponse(photoId);
     }
 }

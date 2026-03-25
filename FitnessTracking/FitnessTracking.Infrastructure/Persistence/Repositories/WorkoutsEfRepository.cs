@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
@@ -32,9 +31,9 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> UpdateAsync(Workout workout, CancellationToken cancellationToken)
+    public async Task<UnitResult<Error>> UpdateAsync(Workout photo, CancellationToken cancellationToken)
     {
-        dbContext.Workouts.Update(workout);
+        dbContext.Workouts.Update(photo);
         await dbContext.SaveChangesAsync(cancellationToken);
         return UnitResult.Success<Error>();
     }
@@ -70,6 +69,21 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             .ToListAsync(cancellationToken);
 
         return Result.Success<IReadOnlyList<Workout>, Error>(workouts);
+    }
+
+    public async Task<Result<Workout, Error>> GetByIdWithPhotosAsync(Guid workoutId, CancellationToken cancellationToken)
+    {
+        var workout = await dbContext.Workouts
+            .AsNoTracking()
+            .Include(w => w.ProgressPhotos)
+            .FirstOrDefaultAsync(w => w.Id.Equals(workoutId.ToString()), cancellationToken);
+
+        if (workout is null)
+        {
+            return Result.Failure<Workout, Error>(WorkoutErrors.WorkoutNotFound(workoutId));
+        }
+
+        return Result.Success<Workout, Error>(workout);
     }
 
     public async Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken) =>
@@ -327,21 +341,5 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         exercise.Sets.RemoveAt(setIndex);
         await dbContext.SaveChangesAsync(cancellationToken);
         return UnitResult.Success<Error>();
-    }
-
-    public async Task<Result<Guid, Error>> AddPhotosToWorkoutAsync(Guid workoutId, CancellationToken cancellationToken)
-    {
-        var workout = await dbContext.Workouts
-            .FindAsync([workoutId.ToString()], cancellationToken);
-
-        var photoId = Guid.NewGuid();
-        if (workout is null)
-        {
-            return Result.Failure<Guid, Error>(WorkoutErrors.WorkoutNotFound(workoutId));
-        }
-
-        // todo: сделать реализацию
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success<Guid, Error>(photoId);
     }
 }
