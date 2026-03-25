@@ -2,6 +2,9 @@
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
+using FitnessTracking.Application.Sorting;
 using FitnessTracking.Shared.Contracts.Dtos;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
@@ -212,16 +215,31 @@ public class WorkoutsService(
     }
 
     public async Task<Result<WorkoutListResponse, Error>> GetByUserIdAsync(GetWorkoutsByUserIdRequest request,
+        WorkoutFilter filter,
+        SortParameters sortParameters,
+        PageParameters pageParameters,
         CancellationToken ct)
     {
-        var workoutsResult = await repository.GetByUserIdAsync(request.UserId, ct);
+        var workoutsResult = await repository.GetByUserIdAsync(
+            request.UserId,
+            filter,
+            sortParameters,
+            pageParameters,
+            ct);
         if (workoutsResult.IsFailure)
         {
             return Result.Failure<WorkoutListResponse, Error>(workoutsResult.Error);
         }
+        
+        var totalResult = await repository.GetCountByUserIdAsync(request.UserId, ct);
+        if (totalResult.IsFailure)
+        {
+            return Result.Failure<WorkoutListResponse, Error>(totalResult.Error);
+        }
+        var total = totalResult.Value;
 
         var responses = workoutsResult.Value.Select(MapToResponse).ToList();
-        return Result.Success<WorkoutListResponse, Error>(new WorkoutListResponse(responses));
+        return Result.Success<WorkoutListResponse, Error>(new WorkoutListResponse(responses, total));
     }
 
     public async Task<Result<WorkoutExercisesResponse, Error>> GetExercisesByWorkoutIdAsync(
