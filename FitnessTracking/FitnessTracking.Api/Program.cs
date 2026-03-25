@@ -17,6 +17,9 @@ Directory.CreateDirectory(uploadsRoot);
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploadsRoot),

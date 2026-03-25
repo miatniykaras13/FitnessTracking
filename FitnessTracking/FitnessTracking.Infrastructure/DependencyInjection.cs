@@ -1,9 +1,11 @@
-﻿using FitnessTracking.Application.Abstractions;
+﻿using FitnessTracking.Application.Abstractions.Auth;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Infrastructure.Helpers;
 using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Infrastructure.Persistence.Repositories;
+using FitnessTracking.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +27,10 @@ public static class DependencyInjection
         services.AddScoped<IWorkoutPhotosRepository, WorkoutPhotosEfRepository>();
         services.AddScoped<ILocalFileStorage, LocalFileStorage>();
         services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
+        services.AddSingleton<ITokenService, TokenService>();
+        
+        services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<FitnessTrackingDbContext>();
 
         return services;
     }
