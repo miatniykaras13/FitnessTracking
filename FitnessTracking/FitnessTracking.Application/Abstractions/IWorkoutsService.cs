@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Shared.Contracts.Requests;
 using FitnessTracking.Shared.Contracts.Responses;
@@ -21,6 +22,7 @@ public interface IWorkoutsService
 
     Task<Result<WorkoutListResponse, Error>> GetByUserIdAsync(GetWorkoutsByUserIdRequest request, WorkoutFilter filter,
         SortParameters sortParameters,
+        PageParameters pageParameters,
         CancellationToken ct);
 
     Task<Result<WorkoutExercisesResponse, Error>> GetExercisesByWorkoutIdAsync(

@@ -2,6 +2,7 @@ using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Shared.Contracts.Requests;
 
@@ -14,6 +15,7 @@ public class GetWorkoutsByUserId : ICarterModule
                 Guid userId,
                 [AsParameters] WorkoutFilter filter,
                 [AsParameters] SortParameters sortParameters,
+                [AsParameters] PageParameters pageParameters,
                 HttpContext httpContext,
                 IWorkoutsService workoutsService,
                 CancellationToken ct = default) =>
@@ -23,6 +25,7 @@ public class GetWorkoutsByUserId : ICarterModule
                     request,
                     filter,
                     sortParameters,
+                    pageParameters,
                     ct);
                 return response.ToHttpResult(httpContext);
             })

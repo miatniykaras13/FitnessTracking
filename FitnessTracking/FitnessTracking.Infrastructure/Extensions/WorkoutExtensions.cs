@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
@@ -27,6 +28,9 @@ public static class WorkoutExtensions
         
         return query;
     }
+    
+    public static IQueryable<Workout> Page(this IQueryable<Workout> query, PageParameters pageParameters) =>
+        query.Skip((pageParameters.PageNumber - 1) * pageParameters.PageSize).Take(pageParameters.PageSize);
     
     public static IQueryable<Workout> Sort(this IQueryable<Workout> query, SortParameters sortParameters) =>
         sortParameters.Direction == SortDirection.Descending 

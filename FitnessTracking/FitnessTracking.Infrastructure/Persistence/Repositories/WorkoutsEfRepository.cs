@@ -2,6 +2,7 @@
 using FitnessTracking.Application.Abstractions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Infrastructure.Extensions;
@@ -57,6 +58,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Guid userId,
         WorkoutFilter filter,
         SortParameters sortParameters,
+        PageParameters pageParameters,
         CancellationToken cancellationToken)
     {
         var workouts = await dbContext.Workouts
@@ -64,10 +66,18 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             .Where(w => w.UserId.Equals(userId.ToString()))
             .Filter(filter)
             .Sort(sortParameters)
+            .Page(pageParameters)
             .ToListAsync(cancellationToken);
 
         return Result.Success<IReadOnlyList<Workout>, Error>(workouts);
     }
+
+    public async Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken) =>
+        await dbContext.Workouts
+            .AsNoTracking()
+            .Where(w => w.UserId.Equals(userId.ToString()))
+            .CountAsync(cancellationToken);
+
 
     public async Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
         Guid workoutId,
@@ -258,14 +268,13 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         await dbContext.SaveChangesAsync(cancellationToken);
         return UnitResult.Success<Error>();
     }
-    
+
     public async Task<UnitResult<Error>> UpdateSetsAsync(
         Guid workoutId,
         string exerciseName,
         IReadOnlyList<Set> sets,
         CancellationToken cancellationToken)
     {
-
         var workout = await dbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)

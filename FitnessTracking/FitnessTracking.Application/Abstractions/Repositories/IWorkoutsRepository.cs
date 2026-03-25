@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Paging;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
@@ -18,7 +19,10 @@ public interface IWorkoutsRepository
     
     Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId, WorkoutFilter filter,
         SortParameters sortParameters,
+        PageParameters pageParameters,
         CancellationToken cancellationToken);
+
+    Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
         Guid workoutId,
