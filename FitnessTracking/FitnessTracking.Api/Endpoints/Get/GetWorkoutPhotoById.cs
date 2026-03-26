@@ -25,6 +25,7 @@ public class GetWorkoutPhotoById : ICarterModule
         .WithDescription("Returns metadata for a workout photo.")
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .AllowAnonymous()
         .WithOpenApi();
 }
 

@@ -29,7 +29,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
             audience: jwtSettings["Audience"] ?? throw new InvalidOperationException("Auth audience must be provided"),
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
-                double.Parse(jwtSettings["ExpiresInMinutes"] ?? "5")),
+                double.Parse(jwtSettings["ExpiresInMinutes"] ?? "20")),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
         

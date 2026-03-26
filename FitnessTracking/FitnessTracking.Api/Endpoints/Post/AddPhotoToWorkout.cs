@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
@@ -11,11 +12,16 @@ public class AddPhotoToWorkout : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app) =>
         app.MapPost("/workouts/{workoutId:guid}/photos", async (
             Guid workoutId,
+            ClaimsPrincipal user,
             [FromForm] AddPhotoToWorkoutForm form,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+
             var file = form.File;
 
             await using var stream = file.OpenReadStream();
@@ -23,6 +29,7 @@ public class AddPhotoToWorkout : ICarterModule
             await stream.CopyToAsync(memoryStream, ct);
 
             var command = new AddPhotosToWorkoutCommand(
+                Guid.Parse(userId),
                 workoutId,
                 file.FileName,
                 memoryStream.ToArray());
@@ -31,6 +38,7 @@ public class AddPhotoToWorkout : ICarterModule
             return result.ToHttpResult(httpContext, created =>
                 Results.Created($"/workouts/{workoutId}/photos/{created.PhotoId}", created));
         })
+        .RequireAuthorization()
         .DisableAntiforgery()
         .WithTags("Workouts")
         .WithName("AddPhotoToWorkout")

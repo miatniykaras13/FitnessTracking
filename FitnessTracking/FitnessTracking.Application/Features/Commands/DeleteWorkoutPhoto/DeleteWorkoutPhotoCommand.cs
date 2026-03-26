@@ -5,6 +5,7 @@ using FitnessTracking.Shared.Errors;
 namespace FitnessTracking.Application.Features.Commands.DeleteWorkoutPhoto;
 
 public record DeleteWorkoutPhotoCommand(
+    Guid UserId,
     Guid WorkoutId,
     Guid PhotoId) : ICommand<UnitResult<List<Error>>>;
 

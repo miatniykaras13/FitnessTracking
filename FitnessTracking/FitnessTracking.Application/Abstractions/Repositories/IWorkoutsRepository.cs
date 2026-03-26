@@ -18,7 +18,10 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         Guid workoutId,
         CancellationToken cancellationToken);
 
-    Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<Result<int, Error>> GetCountByUserIdWithFilterAsync(
+        Guid userId,
+        WorkoutFilter filter,
+        CancellationToken cancellationToken);
 
     Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
         Guid workoutId,

@@ -24,6 +24,18 @@ public class UpdateSetsCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
+        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return Result.Failure<UpdateSetsResponse, List<Error>>(workoutResult.Error);
+        }
+
+        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var sets = request.SetDtos.Sets.Select(s => new Set
         {
             Reps = s.Reps,

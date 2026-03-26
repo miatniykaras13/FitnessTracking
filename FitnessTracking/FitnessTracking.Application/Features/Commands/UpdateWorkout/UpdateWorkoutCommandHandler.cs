@@ -38,6 +38,12 @@ public class UpdateWorkoutCommandHandler(
 
         var workout = workoutResult.Value;
 
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         workout.Title = request.WorkoutDto.Title;
         workout.Type = workoutType;
         workout.Duration = request.WorkoutDto.Duration;

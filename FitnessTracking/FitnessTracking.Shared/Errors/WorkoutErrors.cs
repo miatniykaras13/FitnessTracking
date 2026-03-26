@@ -28,4 +28,9 @@ public static class WorkoutErrors
 
     public static Error InvalidWorkoutType(string? type) =>
         Error.Validation("workout.type", $"{type} is not a valid workout type.");
+
+    public static Error WorkoutAccessDenied(Guid workoutId, Guid userId) =>
+        Error.Forbidden(
+            "workout",
+            $"User with id {userId} has no access to workout with id {workoutId}.");
 }

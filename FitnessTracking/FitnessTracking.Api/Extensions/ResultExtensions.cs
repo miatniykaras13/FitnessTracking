@@ -7,21 +7,6 @@ namespace FitnessTracking.Api.Extensions;
 public static class ResultExtensions
 {
     public static Microsoft.AspNetCore.Http.IResult ToHttpResult<T>(
-        this Result<T, Error> result,
-        HttpContext httpContext,
-        Func<T, Microsoft.AspNetCore.Http.IResult>? onSuccess = null)
-    {
-        if (result.IsSuccess)
-        {
-            return onSuccess is null ? Results.Ok(result.Value) : onSuccess(result.Value);
-        }
-
-        var problem = ToProblem(result.Error, httpContext);
-
-        return Results.Problem(problem);
-    }
-
-    public static Microsoft.AspNetCore.Http.IResult ToHttpResult<T>(
         this Result<T, List<Error>> result,
         HttpContext httpContext,
         Func<T, Microsoft.AspNetCore.Http.IResult>? onSuccess = null)
@@ -31,24 +16,12 @@ public static class ResultExtensions
             return onSuccess is null ? Results.Ok(result.Value) : onSuccess(result.Value);
         }
 
-        var problems = ToProblem(result.Error, httpContext);
+        var problems = result.Error.Count == 1
+            ? ToProblem(result.Error[0], httpContext)
+            : ToProblem(result.Error, httpContext);
         return Results.Problem(problems);
     }
 
-    public static Microsoft.AspNetCore.Http.IResult ToHttpResult(
-        this UnitResult<Error> result,
-        HttpContext httpContext,
-        Func<Microsoft.AspNetCore.Http.IResult>? onSuccess = null)
-    {
-        if (result.IsSuccess)
-        {
-            return onSuccess is null ? Results.NoContent() : onSuccess();
-        }
-
-        var problem = ToProblem(result.Error, httpContext);
-        return Results.Problem(problem);
-    }
-    
     public static Microsoft.AspNetCore.Http.IResult ToHttpResult(
         this UnitResult<List<Error>> result,
         HttpContext httpContext,
@@ -103,7 +76,7 @@ public static class ResultExtensions
         var otherProblems = errors.Select(e => ToProblem(e, httpContext)).ToList();
 
         problem.Extensions.Add("otherProblems", otherProblems);
-        
+
         return problem;
     }
 }

@@ -23,6 +23,18 @@ public class UpdateSetCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
+        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return Result.Failure<UpdateSetResponse, List<Error>>(workoutResult.Error);
+        }
+
+        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<UpdateSetResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var set = new Set
         {
             Reps = request.SetDto.Reps,

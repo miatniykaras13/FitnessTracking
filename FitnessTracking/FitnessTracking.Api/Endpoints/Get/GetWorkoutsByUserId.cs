@@ -29,5 +29,6 @@ public class GetWorkoutsByUserId : ICarterModule
             .WithSummary("Get user workouts")
             .WithDescription("Returns all workouts created by the specified user.")
             .Produces(StatusCodes.Status200OK)
+            .AllowAnonymous()
             .WithOpenApi();
 }

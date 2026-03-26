@@ -5,6 +5,7 @@ using FitnessTracking.Shared.Errors;
 namespace FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 
 public record AddPhotosToWorkoutCommand(
+    Guid UserId,
     Guid WorkoutId,
     string FileName,
     byte[] FileContent) : ICommand<Result<AddPhotosToWorkoutResponse, List<Error>>>;

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.UpdateSet;
@@ -13,15 +14,21 @@ public class UpdateSet : ICarterModule
             Guid workoutId,
             string exerciseName,
             int setIndex,
+            ClaimsPrincipal user,
             UpdateSetDto dto,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
-            var command = new UpdateSetCommand(workoutId, exerciseName, setIndex, dto);
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+
+            var command = new UpdateSetCommand(Guid.Parse(userId), workoutId, exerciseName, setIndex, dto);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
+        .RequireAuthorization()
         .WithTags("Sets")
         .WithName("UpdateSet")
         .WithSummary("Update set")

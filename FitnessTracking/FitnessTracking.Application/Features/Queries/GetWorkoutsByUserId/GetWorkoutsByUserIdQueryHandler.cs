@@ -36,7 +36,10 @@ public class GetWorkoutsByUserIdQueryHandler(
             return Result.Failure<GetWorkoutsByUserIdResponse, List<Error>>(workoutsResult.Error);
         }
 
-        var totalResult = await repository.GetCountByUserIdAsync(request.UserId, cancellationToken);
+        var totalResult = await repository.GetCountByUserIdWithFilterAsync(
+            request.UserId,
+            request.Filter,
+            cancellationToken);
         if (totalResult.IsFailure)
         {
             return Result.Failure<GetWorkoutsByUserIdResponse, List<Error>>(totalResult.Error);

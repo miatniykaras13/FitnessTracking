@@ -27,5 +27,6 @@ public class RegisterUser : ICarterModule
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .AllowAnonymous()
             .WithOpenApi();
 }

@@ -8,6 +8,7 @@ public class AddPhotosToWorkoutCommandValidator : AbstractValidator<AddPhotosToW
 
     public AddPhotosToWorkoutCommandValidator()
     {
+        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.FileName).NotEmpty();
         RuleFor(x => x.FileContent).NotNull().Must(content => content.Length > 0);

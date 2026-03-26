@@ -25,6 +25,7 @@ public class GetWorkoutPhotoContent : ICarterModule
         .WithDescription("Redirects to the static URL of the workout photo file.")
         .Produces(StatusCodes.Status302Found)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .AllowAnonymous()
         .WithOpenApi();
 }
 

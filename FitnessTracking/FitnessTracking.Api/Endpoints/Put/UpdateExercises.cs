@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.UpdateExercises;
@@ -11,15 +12,21 @@ public class UpdateExercises : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app) =>
         app.MapPut("/workouts/{workoutId:guid}/exercises", async (
             Guid workoutId,
+            ClaimsPrincipal user,
             UpdateExercisesDto dto,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
-            var command = new UpdateExercisesCommand(workoutId, dto);
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+
+            var command = new UpdateExercisesCommand(Guid.Parse(userId), workoutId, dto);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
+        .RequireAuthorization()
         .WithTags("Exercises")
         .WithName("UpdateExercises")
         .WithSummary("Replace workout exercises")

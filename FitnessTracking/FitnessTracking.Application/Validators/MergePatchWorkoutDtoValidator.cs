@@ -13,14 +13,11 @@ public class MergePatchWorkoutDtoValidator : AbstractValidator<MergePatchWorkout
             .NotEmpty()
             .Must(BeValidWorkoutType);
         RuleFor(x => x.Duration)
-            .NotNull()
             .GreaterThan(TimeSpan.Zero);
         RuleFor(x => x.CaloriesBurned)
-            .NotNull()
             .GreaterThanOrEqualTo(0);
         RuleFor(x => x.WorkoutDate)
-            .NotNull()
-            .NotEqual(default(DateTime?));
+            .NotEqual(default(DateTime));
     }
 
     private static bool BeValidWorkoutType(string? type) =>

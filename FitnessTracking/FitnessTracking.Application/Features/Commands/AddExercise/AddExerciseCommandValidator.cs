@@ -7,6 +7,7 @@ public class AddExerciseCommandValidator : AbstractValidator<AddExerciseCommand>
 {
     public AddExerciseCommandValidator()
     {
+        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.ExerciseDto)
             .NotNull()

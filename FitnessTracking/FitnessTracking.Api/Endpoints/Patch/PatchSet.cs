@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.PatchSet;
@@ -16,11 +17,16 @@ public class PatchSet : ICarterModule
             Guid workoutId,
             string exerciseName,
             int setIndex,
+            ClaimsPrincipal user,
             HttpRequest httpRequest,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+
             var patchObject =
                 await JsonSerializer.DeserializeAsync<JsonObject>(
                     httpRequest.Body,
@@ -32,7 +38,7 @@ public class PatchSet : ICarterModule
                 throw new InvalidOperationException("Patch body must be a JsonObject");
             }
 
-            var command = new PatchSetCommand(workoutId, exerciseName, setIndex, patchObject);
+            var command = new PatchSetCommand(Guid.Parse(userId), workoutId, exerciseName, setIndex, patchObject);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
@@ -43,6 +49,7 @@ public class PatchSet : ICarterModule
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .RequireAuthorization()
         .WithMetadata(new ConsumesAttribute(typeof(MergePatchSetDto), "application/merge-patch+json"))
         .WithOpenApi();
 }

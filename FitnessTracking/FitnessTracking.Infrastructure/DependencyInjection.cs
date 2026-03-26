@@ -29,8 +29,10 @@ public static class DependencyInjection
         services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
         services.AddSingleton<ITokenService, TokenService>();
         
-        services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddEntityFrameworkStores<FitnessTrackingDbContext>();
+        services.AddIdentityCore<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<FitnessTrackingDbContext>()
+            .AddDefaultTokenProviders();
 
         return services;
     }

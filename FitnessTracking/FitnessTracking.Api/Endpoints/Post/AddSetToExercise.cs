@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.AddSet;
@@ -12,16 +13,22 @@ public class AddSetToExercise : ICarterModule
         app.MapPost("/workouts/{workoutId:guid}/exercises/{exerciseName}/sets", async (
             Guid workoutId,
             string exerciseName,
+            ClaimsPrincipal user,
             AddSetDto dto,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
-            var command = new AddSetCommand(workoutId, exerciseName, dto);
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+            
+            var command = new AddSetCommand(workoutId, Guid.Parse(userId), exerciseName, dto);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext, created =>
                 Results.Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(exerciseName)}/sets", created));
         })
+        .RequireAuthorization()
         .WithTags("Sets")
         .WithName("AddSetToExercise")
         .WithSummary("Add set to exercise")

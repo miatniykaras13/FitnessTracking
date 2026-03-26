@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Carter;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.DeleteExercise;
@@ -11,14 +12,20 @@ public class DeleteExercise : ICarterModule
         app.MapDelete("/workouts/{workoutId:guid}/exercises/{exerciseName}", async (
             Guid workoutId,
             string exerciseName,
+            ClaimsPrincipal user,
             HttpContext httpContext,
             ISender sender,
             CancellationToken ct = default) =>
         {
-            var command = new DeleteExerciseCommand(workoutId, exerciseName);
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Results.Unauthorized();
+
+            var command = new DeleteExerciseCommand(Guid.Parse(userId), workoutId, exerciseName);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult(httpContext);
         })
+        .RequireAuthorization()
         .WithTags("Exercises")
         .WithName("DeleteExercise")
         .WithSummary("Delete exercise")
