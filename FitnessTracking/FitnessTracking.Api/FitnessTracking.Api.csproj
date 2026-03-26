@@ -5,17 +5,34 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>f3f84c15-1d14-4e9b-9e2f-91a2db571e92</UserSecretsId>
+        <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.25"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+        <PackageReference Include="Carter" Version="8.2.1" />
+        <PackageReference Include="CSharpFunctionalExtensions" Version="2.42.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.25" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.25">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FitnessTracking.Application\FitnessTracking.Application.csproj" />
+      <ProjectReference Include="..\FitnessTracking.Infrastructure\FitnessTracking.Infrastructure.csproj" />
+      <ProjectReference Include="..\FitnessTracking.Shared\FitnessTracking.Shared.csproj" />
     </ItemGroup>
 
 </Project>
