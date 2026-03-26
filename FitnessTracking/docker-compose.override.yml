@@ -10,3 +10,18 @@ services:
     restart: always
     volumes:
       - fitness-tracking-postgres-data:/var/lib/postgresql
+  
+  fitnesstracking.api:
+    container_name: fitnesstracking.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__FitnessTrackingDbContext=Server=fitnesstrackingdb;Port=5432;Database=${FITNESSTRACKING_POSTGRES_DB};Username=${FITNESSTRACKING_POSTGRES_USER};Password=${FITNESSTRACKING_POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/home/app/.microsoft/usersecrets
+      - ${USERPROFILE}/.aspnet/https/:/https/

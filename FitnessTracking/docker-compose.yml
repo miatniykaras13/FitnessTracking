@@ -1,6 +1,12 @@
 services:
   fitnesstrackingdb:
     image: postgres:18
+    
+  fitnesstracking.api:
+    image: fitnesstracking.api
+    build:
+      context: .
+      dockerfile: Fitnesstracking.Api/Dockerfile
       
 volumes:
   fitness-tracking-postgres-data:
