@@ -86,10 +86,14 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return Result.Success<Workout, Error>(workout);
     }
 
-    public async Task<Result<int, Error>> GetCountByUserIdAsync(Guid userId, CancellationToken cancellationToken) =>
+    public async Task<Result<int, Error>> GetCountByUserIdWithFilterAsync(
+        Guid userId,
+        WorkoutFilter filter,
+        CancellationToken cancellationToken) =>
         await dbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId.Equals(userId.ToString()))
+            .Filter(filter)
             .CountAsync(cancellationToken);
 
 

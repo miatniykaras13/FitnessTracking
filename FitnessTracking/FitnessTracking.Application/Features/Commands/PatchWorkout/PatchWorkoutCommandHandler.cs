@@ -36,6 +36,12 @@ public class PatchWorkoutCommandHandler(
 
         var workout = workoutResult.Value;
 
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var currentDto = new MergePatchWorkoutDto()
         {
             Title = workout.Title,

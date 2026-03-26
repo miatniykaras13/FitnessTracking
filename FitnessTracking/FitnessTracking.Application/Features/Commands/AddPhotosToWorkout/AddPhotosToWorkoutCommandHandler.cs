@@ -30,6 +30,12 @@ public class AddPhotosToWorkoutCommandHandler(
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(workoutResult.Error);
         }
 
+        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var pathResult = await fileStorage.SaveWorkoutPhotoAsync(
             request.WorkoutId,
             request.FileName,
@@ -64,6 +70,6 @@ public class AddPhotosToWorkoutCommandHandler(
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(updateWorkoutResult.Error);
         }
 
-        return new AddPhotosToWorkoutResponse(photoId);
+        return new AddPhotosToWorkoutResponse(photoId, photo.Path);
     }
 }

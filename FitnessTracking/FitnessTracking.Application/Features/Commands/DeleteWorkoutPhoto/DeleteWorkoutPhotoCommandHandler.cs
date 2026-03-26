@@ -24,6 +24,17 @@ public class DeleteWorkoutPhotoCommandHandler(
             return UnitResult.Failure(validationResult.Errors.ToErrors(nameof(WorkoutPhoto).ToLower()));
         }
 
+        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return UnitResult.Failure<List<Error>>(workoutResult.Error);
+        }
+
+        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var photoResult = await photosRepository.GetByWorkoutIdAndPhotoIdAsync(
             request.WorkoutId,
             request.PhotoId,
@@ -44,10 +55,10 @@ public class DeleteWorkoutPhotoCommandHandler(
             return UnitResult.Failure<List<Error>>(deleteDbResult.Error);
         }
 
-        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsSuccess)
+        var ownedWorkoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (ownedWorkoutResult.IsSuccess)
         {
-            var workout = workoutResult.Value;
+            var workout = ownedWorkoutResult.Value;
             workout.ProgressPhotos.RemoveAll(p => p.Id.Equals(request.PhotoId.ToString()));
             var updateResult = await workoutsRepository.UpdateAsync(workout, cancellationToken);
             if (updateResult.IsFailure)

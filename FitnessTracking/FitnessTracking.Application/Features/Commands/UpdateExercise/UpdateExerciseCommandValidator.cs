@@ -7,6 +7,7 @@ public class UpdateExerciseCommandValidator : AbstractValidator<UpdateExerciseCo
 {
     public UpdateExerciseCommandValidator()
     {
+        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.ExerciseName).NotEmpty();
         RuleFor(x => x.ExerciseDto)

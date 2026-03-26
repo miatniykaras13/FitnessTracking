@@ -6,6 +6,7 @@ public class DeleteWorkoutPhotoCommandValidator : AbstractValidator<DeleteWorkou
 {
     public DeleteWorkoutPhotoCommandValidator()
     {
+        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.PhotoId).NotEmpty();
     }

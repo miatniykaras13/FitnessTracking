@@ -66,6 +66,9 @@ public class Error
 
     public static Error Forbidden(string obj, string? message = null) =>
         new($"{obj}.is_forbidden", ErrorType.Forbidden, message);
+    
+    public static Error Unauthorized(string? message = null) =>
+        new($"user.is_unauthorized", ErrorType.Unauthorized, message);
 
     public static Error Custom(string code, string? message = null, ErrorType? errorType = null) =>
         new(code, errorType ?? ErrorType.Unknown, message);

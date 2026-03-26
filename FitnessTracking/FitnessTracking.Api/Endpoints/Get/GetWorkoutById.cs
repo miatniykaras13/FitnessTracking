@@ -24,5 +24,6 @@ public class GetWorkoutById : ICarterModule
         .WithDescription("Returns a single workout with all basic workout fields.")
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .AllowAnonymous()
         .WithOpenApi();
 }

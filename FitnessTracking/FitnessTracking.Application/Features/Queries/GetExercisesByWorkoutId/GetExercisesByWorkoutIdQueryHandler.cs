@@ -24,6 +24,13 @@ public class GetExercisesByWorkoutIdQueryHandler(
             return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
+        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(workoutResult.Error);
+        }
+
+
         var exercisesResult = await repository.GetExercisesByWorkoutIdAsync(request.WorkoutId, cancellationToken);
         if (exercisesResult.IsFailure)
         {

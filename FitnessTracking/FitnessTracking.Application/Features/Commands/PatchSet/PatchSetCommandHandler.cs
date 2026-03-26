@@ -34,6 +34,12 @@ public class PatchSetCommandHandler(
         }
 
         var workout = workoutResult.Value;
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<PatchSetResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)

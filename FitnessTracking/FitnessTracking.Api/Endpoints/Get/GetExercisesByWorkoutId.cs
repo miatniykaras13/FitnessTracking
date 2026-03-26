@@ -24,6 +24,7 @@ public class GetExercisesByWorkoutId : ICarterModule
         .WithDescription("Returns exercises for a workout including their sets.")
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .AllowAnonymous()
         .WithOpenApi();
 }
 

@@ -24,6 +24,18 @@ public class UpdateExerciseCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
+        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(workoutResult.Error);
+        }
+
+        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(
+                WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
         var exercise = new Exercise
         {
             Name = request.ExerciseDto.Name,

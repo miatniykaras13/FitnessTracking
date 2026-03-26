@@ -9,6 +9,7 @@ using FluentValidation;
 namespace FitnessTracking.Application.Features.Queries.GetWorkoutPhoto;
 
 public class GetWorkoutPhotoQueryHandler(
+    IWorkoutsRepository workoutsRepository,
     IWorkoutPhotosRepository photosRepository,
     IValidator<GetWorkoutPhotoQuery> validator)
     : IQueryHandler<GetWorkoutPhotoQuery, Result<GetWorkoutPhotoResponse, List<Error>>>
@@ -22,6 +23,13 @@ public class GetWorkoutPhotoQueryHandler(
         {
             return validationResult.Errors.ToErrors(nameof(WorkoutPhoto).ToLower());
         }
+
+        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workoutResult.IsFailure)
+        {
+            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(workoutResult.Error);
+        }
+
 
         var photoResult = await photosRepository.GetByWorkoutIdAndPhotoIdAsync(
             request.WorkoutId,

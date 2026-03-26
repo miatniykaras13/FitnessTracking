@@ -6,6 +6,7 @@ using FitnessTracking.Shared.Errors;
 namespace FitnessTracking.Application.Features.Commands.PatchSet;
 
 public record PatchSetCommand(
+    Guid UserId,
     Guid WorkoutId,
     string ExerciseName,
     int SetIndex,
