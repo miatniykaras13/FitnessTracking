@@ -7,12 +7,17 @@ public class MergePatchSetDtoValidator : AbstractValidator<MergePatchSetDto>
 {
     public MergePatchSetDtoValidator()
     {
-        RuleFor(x => x.Reps)
-            .NotNull()
-            .GreaterThan(0);
-        RuleFor(x => x.Weight)
-            .NotNull()
-            .GreaterThanOrEqualTo(0);
+        When(x => x.Reps is not null, () =>
+        {
+            RuleFor(x => x.Reps)
+                .NotNull()
+                .GreaterThan(0);
+        });
+        When(x => x.Weight is not null, () =>
+        {
+            RuleFor(x => x.Weight)
+                .NotNull()
+                .GreaterThanOrEqualTo(0);
+        });
     }
 }
-
