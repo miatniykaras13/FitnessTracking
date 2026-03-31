@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Shared.Contracts;
 using FluentValidation;
@@ -13,7 +14,7 @@ public class UpdateWorkoutDtoValidator : AbstractValidator<UpdateWorkoutDto>
             .NotEmpty()
             .Must(BeValidWorkoutType);
         RuleFor(x => x.Duration).GreaterThan(TimeSpan.Zero);
-        RuleFor(x => x.CaloriesBurned).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.CaloriesBurned).GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
         RuleFor(x => x.WorkoutDate).NotEqual(default(DateTime));
     }
 

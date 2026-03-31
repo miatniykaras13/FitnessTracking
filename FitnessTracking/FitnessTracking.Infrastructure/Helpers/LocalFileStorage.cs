@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Helpers;
+using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Errors;
 using Microsoft.Extensions.Configuration;
 
@@ -7,6 +8,9 @@ namespace FitnessTracking.Infrastructure.Helpers;
 
 public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
 {
+    private const string PhotoExtensionErrorCode = "photo.extension";
+    private const string AllowedExtensionsMessage = "Only jpg, jpeg and png are allowed.";
+
     private static readonly HashSet<string> AllowedExtensions =
     [
         ".jpg",
@@ -24,12 +28,12 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
         {
             return Result.Failure<string, Error>(
-                Error.Validation("photo.extension", "Only jpg, jpeg, png, webp and gif are allowed."));
+                Error.Validation(PhotoExtensionErrorCode, AllowedExtensionsMessage));
         }
 
         var rootPath = GetRootPath();
 
-        var workoutFolder = Path.Combine(rootPath, "workouts", workoutId.ToString());
+        var workoutFolder = Path.Combine(rootPath, FileStorageConstants.WorkoutsFolderName, workoutId.ToString());
         Directory.CreateDirectory(workoutFolder);
 
         var safeFileName = $"{Guid.NewGuid():N}{extension}";
@@ -37,7 +41,8 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
 
         await File.WriteAllBytesAsync(absolutePath, fileContent, cancellationToken);
 
-        var relativePath = $"/uploads/workouts/{workoutId}/{safeFileName}";
+        var relativePath =
+            $"{FileStorageConstants.UploadsRequestPath}/{FileStorageConstants.WorkoutsFolderName}/{workoutId}/{safeFileName}";
         return Result.Success<string, Error>(relativePath);
     }
 
@@ -47,9 +52,11 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         var rootPath = GetRootPath();
 
        
-        if (normalizedPath.StartsWith($"uploads{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+        if (normalizedPath.StartsWith(
+                $"{FileStorageConstants.DefaultRootFolderName}{Path.DirectorySeparatorChar}",
+                StringComparison.OrdinalIgnoreCase))
         {
-            normalizedPath = normalizedPath[("uploads".Length + 1)..];
+            normalizedPath = normalizedPath[(FileStorageConstants.DefaultRootFolderName.Length + 1)..];
         }
 
         var absolutePath = Path.Combine(rootPath, normalizedPath);
@@ -64,7 +71,8 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
 
     private string GetRootPath()
     {
-        var rootPathSetting = configuration["FileStorage:RootPath"] ?? "uploads";
+        var rootPathSetting =
+            configuration[FileStorageConstants.RootPathConfigKey] ?? FileStorageConstants.DefaultRootFolderName;
         return Path.IsPathRooted(rootPathSetting)
             ? rootPathSetting
             : Path.Combine(Directory.GetCurrentDirectory(), rootPathSetting);

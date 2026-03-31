@@ -1,6 +1,8 @@
-﻿using FitnessTracking.Infrastructure.Persistence;
+﻿using FitnessTracking.Api.Constants;
+using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Api.Middleware;
 using Carter;
+using FitnessTracking.Shared.Constants;
 using Microsoft.Extensions.FileProviders;
 
 namespace FitnessTracking.Api;
@@ -34,14 +36,14 @@ public static class ApiExtensions
     {
         var uploadsRoot = Path.Combine(
             app.Environment.ContentRootPath,
-            configuration["FileStorage:RootPath"] ?? "uploads");
+            configuration[FileStorageConstants.RootPathConfigKey] ?? FileStorageConstants.DefaultRootFolderName);
 
         Directory.CreateDirectory(uploadsRoot);
 
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = new PhysicalFileProvider(uploadsRoot),
-            RequestPath = "/uploads"
+            RequestPath = FileStorageConstants.UploadsRequestPath
         });
 
         return app;
@@ -57,8 +59,8 @@ public static class ApiExtensions
         app.UseSwagger();
         app.UseSwaggerUI(o =>
         {
-            o.SwaggerEndpoint("/swagger/v1/swagger.json", "FitnessTracking.Api v1");
-            o.RoutePrefix = "docs";
+            o.SwaggerEndpoint(ApiConstants.Swagger.JsonEndpoint, ApiConstants.Swagger.ApiVersionName);
+            o.RoutePrefix = ApiConstants.Swagger.DocsRoutePrefix;
         });
 
         return app;

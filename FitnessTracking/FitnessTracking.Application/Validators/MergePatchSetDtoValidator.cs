@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Shared.Contracts;
 using FluentValidation;
 
@@ -11,13 +12,13 @@ public class MergePatchSetDtoValidator : AbstractValidator<MergePatchSetDto>
         {
             RuleFor(x => x.Reps)
                 .NotNull()
-                .GreaterThan(0);
+                .GreaterThan(ValidationConstants.MinZeroBasedIndex);
         });
         When(x => x.Weight is not null, () =>
         {
             RuleFor(x => x.Weight)
                 .NotNull()
-                .GreaterThanOrEqualTo(0);
+                .GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
         });
     }
 }

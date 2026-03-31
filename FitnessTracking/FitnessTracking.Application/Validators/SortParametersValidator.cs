@@ -1,4 +1,5 @@
 using FitnessTracking.Application.Sorting;
+using FitnessTracking.Domain.Models;
 using FluentValidation;
 
 namespace FitnessTracking.Application.Validators;
@@ -7,9 +8,9 @@ public class SortParametersValidator : AbstractValidator<SortParameters>
 {
     private static readonly string[] AllowedOrderBy =
     [
-        "CaloriesBurned",
-        "WorkoutDate",
-        "CreatedAt"
+        nameof(Workout.CaloriesBurned),
+        nameof(Workout.WorkoutDate),
+        nameof(Workout.CreatedAt)
     ];
 
     public SortParametersValidator()

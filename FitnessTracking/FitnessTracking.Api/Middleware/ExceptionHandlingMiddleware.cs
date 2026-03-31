@@ -1,3 +1,4 @@
+using FitnessTracking.Api.Constants;
 using FitnessTracking.Api.Exceptions;
 using FitnessTracking.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +30,12 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
             Instance = context.Request.Path,
             Extensions =
             {
-                ["traceId"] = context.TraceIdentifier
+                [ApiConstants.ProblemDetails.TraceIdExtensionKey] = context.TraceIdentifier
             }
         };
 
-        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = ApiConstants.ProblemDetails.ContentType;
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
