@@ -2,12 +2,13 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FitnessTracking.Application.Abstractions.Helpers;
+using FitnessTracking.Infrastructure.Exceptions;
 
 namespace FitnessTracking.Infrastructure.Helpers;
 
 public class MergePatchHelper : IMergePatchHelper
 {
-    private readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions()
+    private readonly JsonSerializerOptions _serializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
@@ -24,7 +25,7 @@ public class MergePatchHelper : IMergePatchHelper
         Merge(patch, target);
 
         var patchedDto = target.Deserialize<T>(options) ??
-                         throw new InvalidOperationException("Failed to deserialize merged JSON to DTO");
+                         throw new MergePatchDeserializationException("Failed to deserialize merged JSON to DTO.");
 
         return patchedDto;
     }

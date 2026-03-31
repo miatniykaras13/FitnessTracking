@@ -1,4 +1,5 @@
-using System.Text.Json;
+using FitnessTracking.Api.Exceptions;
+using FitnessTracking.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessTracking.Api.Middleware;
@@ -31,7 +32,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
                 ["traceId"] = context.TraceIdentifier
             }
         };
-        
+
         context.Response.ContentType = "application/problem+json";
 
         await context.Response.WriteAsJsonAsync(problemDetails);
@@ -41,6 +42,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
     {
         return exception switch
         {
+            InvalidPatchDocumentException => StatusCodes.Status400BadRequest,
+            MergePatchDeserializationException => StatusCodes.Status400BadRequest,
             ArgumentException or FormatException or BadHttpRequestException => StatusCodes.Status400BadRequest,
             KeyNotFoundException => StatusCodes.Status404NotFound,
             UnauthorizedAccessException => StatusCodes.Status403Forbidden,
@@ -48,5 +51,3 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
         };
     }
 }
-
-

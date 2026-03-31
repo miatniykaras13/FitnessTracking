@@ -2,6 +2,7 @@
 using System.Text.Json.Nodes;
 using System.Security.Claims;
 using Carter;
+using FitnessTracking.Api.Exceptions;
 using FitnessTracking.Api.Extensions;
 using FitnessTracking.Application.Features.Commands.PatchSet;
 using FitnessTracking.Shared.Contracts;
@@ -35,7 +36,7 @@ public class PatchSet : ICarterModule
 
             if (patchObject is null)
             {
-                throw new InvalidOperationException("Patch body must be a JsonObject");
+                throw new InvalidPatchDocumentException("Patch body must be a JsonObject.");
             }
 
             var command = new PatchSetCommand(Guid.Parse(userId), workoutId, exerciseName, setIndex, patchObject);

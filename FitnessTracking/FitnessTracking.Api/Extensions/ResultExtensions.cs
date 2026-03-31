@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using FitnessTracking.Api.Exceptions;
 using FitnessTracking.Shared.Errors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,7 +69,9 @@ public static class ResultExtensions
     private static ProblemDetails ToProblem(List<Error> errors, HttpContext httpContext)
     {
         if (errors.Count == 0)
-            throw new InvalidOperationException("Cannot convert an empty list of errors to a ProblemDetails object.");
+        {
+            throw new InvalidErrorListStateException("Cannot convert an empty list of errors to ProblemDetails.");
+        }
 
         var problem = ToProblem(errors[0], httpContext);
 
