@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FitnessTracking.Infrastructure;
 using Carter;
 using FitnessTracking.Application;
+using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.IdentityModel.Tokens;
@@ -84,7 +85,7 @@ public static class DependencyInjection
                     ValidateAudience = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["Auth:Secret"] ??
-                                               throw new InvalidOperationException("Auth secret must be provided")))
+                                               throw new MissingConfigurationException("Auth:Secret")))
                 };
             });
 

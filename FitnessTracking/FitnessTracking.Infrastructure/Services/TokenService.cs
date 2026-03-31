@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using FitnessTracking.Application.Abstractions.Auth;
+using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -22,11 +23,11 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtSettings["Secret"] ??
-                                   throw new InvalidOperationException("Auth secret must be provided")));
+                                   throw new MissingConfigurationException("Auth:Secret")));
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"] ?? throw new InvalidOperationException("Auth issuer must be provided"),
-            audience: jwtSettings["Audience"] ?? throw new InvalidOperationException("Auth audience must be provided"),
+            issuer: jwtSettings["Issuer"] ?? throw new MissingConfigurationException("Auth:Issuer"),
+            audience: jwtSettings["Audience"] ?? throw new MissingConfigurationException("Auth:Audience"),
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
                 double.Parse(jwtSettings["ExpiresInMinutes"] ?? "20")),
