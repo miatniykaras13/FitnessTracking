@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using FitnessTracking.Api.Constants;
 using FitnessTracking.Api.Exceptions;
 using FitnessTracking.Shared.Errors;
 using Microsoft.AspNetCore.Mvc;
@@ -57,8 +58,8 @@ public static class ResultExtensions
             Instance = httpContext.Request.Path,
             Extensions =
             {
-                ["errorCode"] = error.Code,
-                ["traceId"] = httpContext.TraceIdentifier
+                [ApiConstants.ProblemDetails.ErrorCodeExtensionKey] = error.Code,
+                [ApiConstants.ProblemDetails.TraceIdExtensionKey] = httpContext.TraceIdentifier
             }
         };
 
@@ -75,10 +76,10 @@ public static class ResultExtensions
 
         var problem = ToProblem(errors[0], httpContext);
 
-        problem.Detail = "Multiple errors occurred. See the 'otherProblems' extension for details.";
+        problem.Detail = ApiConstants.ProblemDetails.MultipleErrorsDetail;
         var otherProblems = errors.Select(e => ToProblem(e, httpContext)).ToList();
 
-        problem.Extensions.Add("otherProblems", otherProblems);
+        problem.Extensions.Add(ApiConstants.ProblemDetails.OtherProblemsExtensionKey, otherProblems);
 
         return problem;
     }

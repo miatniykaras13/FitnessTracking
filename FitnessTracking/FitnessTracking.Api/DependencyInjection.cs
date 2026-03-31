@@ -1,8 +1,10 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
+using FitnessTracking.Api.Constants;
 using FitnessTracking.Infrastructure;
 using Carter;
 using FitnessTracking.Application;
+using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
@@ -35,12 +37,12 @@ public static class DependencyInjection
         });
         services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition(ApiConstants.Security.BearerScheme, new OpenApiSecurityScheme
             {
-                Name = "Authorization",
+                Name = ApiConstants.Security.AuthorizationHeader,
                 Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
+                Scheme = ApiConstants.Security.BearerScheme,
+                BearerFormat = ApiConstants.Security.JwtFormat,
                 In = ParameterLocation.Header
             });
 
@@ -52,7 +54,7 @@ public static class DependencyInjection
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = ApiConstants.Security.BearerScheme
                         }
                     },
                     Array.Empty<string>()
@@ -77,15 +79,15 @@ public static class DependencyInjection
             {
                 o.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidIssuer = configuration["Auth:Issuer"],
-                    ValidAudience = configuration["Auth:Audience"],
+                    ValidIssuer = configuration[AuthConstants.IssuerPath],
+                    ValidAudience = configuration[AuthConstants.AudiencePath],
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Auth:Secret"] ??
-                                               throw new MissingConfigurationException("Auth:Secret")))
+                        Encoding.UTF8.GetBytes(configuration[AuthConstants.SecretPath] ??
+                                               throw new MissingConfigurationException(AuthConstants.SecretPath)))
                 };
             });
 

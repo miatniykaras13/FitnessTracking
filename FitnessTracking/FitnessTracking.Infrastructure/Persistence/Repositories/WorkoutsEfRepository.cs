@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
@@ -258,7 +259,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Set set,
         CancellationToken cancellationToken)
     {
-        if (setIndex < 0)
+        if (setIndex < ValidationConstants.MinZeroBasedIndex)
         {
             return UnitResult.Failure(WorkoutErrors.InvalidSetIndex(setIndex));
         }
@@ -318,7 +319,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         int setIndex,
         CancellationToken cancellationToken)
     {
-        if (setIndex < 0)
+        if (setIndex < ValidationConstants.MinZeroBasedIndex)
         {
             return UnitResult.Failure(WorkoutErrors.InvalidSetIndex(setIndex));
         }

@@ -1,7 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Globalization;
 using System.Text;
 using FitnessTracking.Application.Abstractions.Auth;
+using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +15,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
 {
     public string GenerateToken(IdentityUser user)
     {
-        var jwtSettings = configuration.GetSection("Auth");
+        var jwtSettings = configuration.GetSection(AuthConstants.SectionName);
 
         var claims = new[]
         {
@@ -22,15 +24,22 @@ public class TokenService(IConfiguration configuration) : ITokenService
         };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["Secret"] ??
-                                   throw new MissingConfigurationException("Auth:Secret")));
+            Encoding.UTF8.GetBytes(jwtSettings[AuthConstants.SecretKey] ??
+                                   throw new MissingConfigurationException(AuthConstants.SecretPath)));
+
+        var tokenLifetimeMinutes = double.TryParse(
+            jwtSettings[AuthConstants.ExpiresInMinutesKey],
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            out var parsedMinutes)
+            ? parsedMinutes
+            : AuthConstants.DefaultTokenLifetimeMinutes;
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"] ?? throw new MissingConfigurationException("Auth:Issuer"),
-            audience: jwtSettings["Audience"] ?? throw new MissingConfigurationException("Auth:Audience"),
+            issuer: jwtSettings[AuthConstants.IssuerKey] ?? throw new MissingConfigurationException(AuthConstants.IssuerPath),
+            audience: jwtSettings[AuthConstants.AudienceKey] ?? throw new MissingConfigurationException(AuthConstants.AudiencePath),
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(
-                double.Parse(jwtSettings["ExpiresInMinutes"] ?? "20")),
+            expires: DateTime.UtcNow.AddMinutes(tokenLifetimeMinutes),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
         
