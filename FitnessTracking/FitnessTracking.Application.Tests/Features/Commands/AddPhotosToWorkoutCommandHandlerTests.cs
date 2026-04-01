@@ -33,7 +33,7 @@ public class AddPhotosToWorkoutCommandHandlerTests
         fileStorage.Setup(x => x.SaveWorkoutPhotoAsync(workoutId, "photo.jpg", command.FileContent, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success<string, Error>("uploads/workouts/photo.jpg"));
         photosRepository.Setup(x => x.AddAsync(It.IsAny<WorkoutPhoto>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync((WorkoutPhoto p, CancellationToken _) => p);
         workoutsRepository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 

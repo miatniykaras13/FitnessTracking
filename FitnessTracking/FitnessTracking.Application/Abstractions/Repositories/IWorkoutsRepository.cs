@@ -1,9 +1,7 @@
-﻿using CSharpFunctionalExtensions;
-using FitnessTracking.Application.Filters;
+﻿using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Errors;
 
 namespace FitnessTracking.Application.Abstractions.Repositories;
 
@@ -27,7 +25,7 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         Guid workoutId,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> AddExerciseAsync(Guid workoutId, Exercise exercise, CancellationToken cancellationToken);
+    Task<Exercise?> AddExerciseAsync(Guid workoutId, Exercise exercise, CancellationToken cancellationToken);
 
     Task<bool> UpdateExerciseAsync(
         Guid workoutId,
@@ -45,7 +43,7 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         string exerciseName,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> AddSetAsync(
+    Task<Set?> AddSetAsync(
         Guid workoutId,
         string exerciseName,
         Set set,

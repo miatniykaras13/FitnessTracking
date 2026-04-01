@@ -1,12 +1,10 @@
-﻿using CSharpFunctionalExtensions;
-using FitnessTracking.Application.Abstractions.Repositories;
+﻿using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Infrastructure.Extensions;
-using FitnessTracking.Shared.Errors;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Infrastructure.Persistence.Repositories;
@@ -21,11 +19,11 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return workout;
     }
 
-    public async Task<UnitResult<Error>> AddAsync(Workout workout, CancellationToken cancellationToken)
+    public async Task<Workout> AddAsync(Workout workout, CancellationToken cancellationToken)
     {
         await dbContext.Workouts.AddAsync(workout, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return workout;
     }
 
     public async Task<bool> UpdateAsync(Workout workout, CancellationToken cancellationToken)
@@ -111,7 +109,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return workout.Exercises;
     }
 
-    public async Task<UnitResult<Error>> AddExerciseAsync(
+    public async Task<Exercise?> AddExerciseAsync(
         Guid workoutId,
         Exercise exercise,
         CancellationToken cancellationToken)
@@ -121,19 +119,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return null;
         }
 
         var hasDuplicateExercise = workout.Exercises.Any(e =>
             string.Equals(e.Name, exercise.Name, StringComparison.OrdinalIgnoreCase));
         if (hasDuplicateExercise)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseAlreadyExists(workoutId, exercise.Name));
+            return null;
         }
 
         workout.Exercises.Add(exercise);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return exercise;
     }
 
     public async Task<bool> UpdateExerciseAsync(
@@ -209,7 +207,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return true;
     }
 
-    public async Task<UnitResult<Error>> AddSetAsync(
+    public async Task<Set?> AddSetAsync(
         Guid workoutId,
         string exerciseName,
         Set set,
@@ -220,19 +218,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return null;
         }
 
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
+            return null;
         }
 
         exercise.Sets.Add(set);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return set;
     }
 
     public async Task<bool> UpdateSetAsync(

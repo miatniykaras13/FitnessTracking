@@ -55,13 +55,9 @@ public class AddPhotosToWorkoutCommandHandler(
             CreatedAt = DateTime.UtcNow
         };
 
-        var addPhotoResult = await photosRepository.AddAsync(photo, cancellationToken);
-        if (addPhotoResult.IsFailure)
-        {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(addPhotoResult.Error);
-        }
+        var addedPhoto = await photosRepository.AddAsync(photo, cancellationToken);
 
-        workout.ProgressPhotos.Add(photo);
+        workout.ProgressPhotos.Add(addedPhoto);
 
         var isWorkoutUpdated = await workoutsRepository.UpdateAsync(workout, cancellationToken);
         if (!isWorkoutUpdated)
@@ -69,6 +65,6 @@ public class AddPhotosToWorkoutCommandHandler(
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        return new AddPhotosToWorkoutResponse(photoId, photo.Path);
+        return new AddPhotosToWorkoutResponse(Guid.Parse(addedPhoto.Id), addedPhoto.Path);
     }
 }

@@ -1,7 +1,5 @@
-﻿using CSharpFunctionalExtensions;
-using FitnessTracking.Application.Abstractions.Repositories;
+﻿using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Errors;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Infrastructure.Persistence.Repositories;
@@ -17,13 +15,13 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
     }
 
 
-    public async Task<UnitResult<Error>> AddAsync(
+    public async Task<WorkoutPhoto> AddAsync(
         WorkoutPhoto photo,
         CancellationToken cancellationToken)
     {
         await dbContext.WorkoutPhotos.AddAsync(photo, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return photo;
     }
 
     public async Task<bool> UpdateAsync(WorkoutPhoto workout, CancellationToken cancellationToken)

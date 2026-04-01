@@ -33,18 +33,26 @@ public class AddSetCommandHandler(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
+        var exerciseExists = workout.Exercises.Any(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (!exerciseExists)
+        {
+            return Result.Failure<AddSetResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+        }
+
         var set = new Set
         {
             Reps = request.SetDto.Reps,
             Weight = request.SetDto.Weight
         };
 
-        var addResult = await repository.AddSetAsync(request.WorkoutId, request.ExerciseName, set, cancellationToken);
-        if (addResult.IsFailure)
+        var addedSet = await repository.AddSetAsync(request.WorkoutId, request.ExerciseName, set, cancellationToken);
+        if (addedSet is null)
         {
-            return Result.Failure<AddSetResponse, List<Error>>(addResult.Error);
+            return Result.Failure<AddSetResponse, List<Error>>(Error.Internal(message: "Failed to add set."));
         }
 
-        return new AddSetResponse(set.Reps, set.Weight);
+        return new AddSetResponse(addedSet.Reps, addedSet.Weight);
     }
 }
