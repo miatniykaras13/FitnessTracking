@@ -75,11 +75,10 @@ public class PatchWorkoutCommandHandler(
         workout.CaloriesBurned = caloriesBurned;
         workout.WorkoutDate = workoutDate;
 
-        var updateResult = await repository.UpdateAsync(workout, cancellationToken);
-
-        if (updateResult.IsFailure)
+        var isUpdated = await repository.UpdateAsync(workout, cancellationToken);
+        if (!isUpdated)
         {
-            return Result.Failure<PatchWorkoutResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return Result.Success<PatchWorkoutResponse, List<Error>>(MapToResponse(workout));

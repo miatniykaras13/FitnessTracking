@@ -35,7 +35,7 @@ public class AddPhotosToWorkoutCommandHandlerTests
         photosRepository.Setup(x => x.AddAsync(It.IsAny<WorkoutPhoto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(UnitResult.Success<Error>());
         workoutsRepository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new AddPhotosToWorkoutCommandHandler(fileStorage.Object, photosRepository.Object, workoutsRepository.Object, validator.Object);
 

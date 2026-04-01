@@ -89,7 +89,7 @@ public class PatchWorkoutCommandHandlerTests
 
         _repository
             .Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new PatchWorkoutCommandHandler(
             _repository.Object,

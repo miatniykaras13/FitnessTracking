@@ -64,10 +64,10 @@ public class AddPhotosToWorkoutCommandHandler(
 
         workout.ProgressPhotos.Add(photo);
 
-        var updateWorkoutResult = await workoutsRepository.UpdateAsync(workout, cancellationToken);
-        if (updateWorkoutResult.IsFailure)
+        var isWorkoutUpdated = await workoutsRepository.UpdateAsync(workout, cancellationToken);
+        if (!isWorkoutUpdated)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(updateWorkoutResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return new AddPhotosToWorkoutResponse(photoId, photo.Path);

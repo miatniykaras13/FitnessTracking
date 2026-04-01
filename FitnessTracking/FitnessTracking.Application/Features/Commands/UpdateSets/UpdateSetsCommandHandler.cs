@@ -36,20 +36,29 @@ public class UpdateSetsCommandHandler(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
+        var exerciseExists = workoutResult.Value.Exercises.Any(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (!exerciseExists)
+        {
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+        }
+
         var sets = request.SetDtos.Sets.Select(s => new Set
         {
             Reps = s.Reps,
             Weight = s.Weight
         }).ToList();
 
-        var updateResult = await repository.UpdateSetsAsync(
+        var isUpdated = await repository.UpdateSetsAsync(
             request.WorkoutId,
             request.ExerciseName,
             sets,
             cancellationToken);
-        if (updateResult.IsFailure)
+        if (!isUpdated)
         {
-            return Result.Failure<UpdateSetsResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         return Result.Success<UpdateSetsResponse, List<Error>>(

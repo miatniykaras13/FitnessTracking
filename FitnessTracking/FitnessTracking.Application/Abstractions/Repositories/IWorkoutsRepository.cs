@@ -29,13 +29,13 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
 
     Task<UnitResult<Error>> AddExerciseAsync(Guid workoutId, Exercise exercise, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> UpdateExerciseAsync(
+    Task<bool> UpdateExerciseAsync(
         Guid workoutId,
         string exerciseName,
         Exercise exercise,
         CancellationToken cancellationToken);
     
-    Task<UnitResult<Error>> UpdateExercisesAsync(
+    Task<bool> UpdateExercisesAsync(
         Guid workoutId,
         IReadOnlyList<Exercise> exercises,
         CancellationToken cancellationToken);
@@ -51,13 +51,13 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         Set set,
         CancellationToken cancellationToken);
     
-    Task<UnitResult<Error>> UpdateSetsAsync(
+    Task<bool> UpdateSetsAsync(
         Guid workoutId,
         string exerciseName,
         IReadOnlyList<Set> sets,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> UpdateSetAsync(
+    Task<bool> UpdateSetAsync(
         Guid workoutId,
         string exerciseName,
         int setIndex,

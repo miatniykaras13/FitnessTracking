@@ -36,16 +36,35 @@ public class UpdateExerciseCommandHandler(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
+        var workout = workoutResult.Value;
+        var existingExercise = workout.Exercises.FirstOrDefault(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (existingExercise is null)
+        {
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+        }
+
         var exercise = new Exercise
         {
             Name = request.ExerciseDto.Name,
             Sets = MapSetDtos(request.ExerciseDto.Sets)
         };
 
-        var updateResult = await repository.UpdateExerciseAsync(request.WorkoutId, request.ExerciseName, exercise, cancellationToken);
-        if (updateResult.IsFailure)
+        var hasNameConflict = workout.Exercises.Any(e =>
+            !string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(e.Name, exercise.Name, StringComparison.OrdinalIgnoreCase));
+        if (hasNameConflict)
         {
-            return Result.Failure<UpdateExerciseResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseAlreadyExists(request.WorkoutId, exercise.Name));
+        }
+
+        var isUpdated = await repository.UpdateExerciseAsync(request.WorkoutId, request.ExerciseName, exercise, cancellationToken);
+        if (!isUpdated)
+        {
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         return Result.Success<UpdateExerciseResponse, List<Error>>(MapExerciseToResponse(exercise));

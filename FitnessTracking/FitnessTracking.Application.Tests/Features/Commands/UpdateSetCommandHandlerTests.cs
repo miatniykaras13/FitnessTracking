@@ -27,7 +27,7 @@ public class UpdateSetCommandHandlerTests
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
         repository.Setup(x => x.UpdateSetAsync(workoutId, "Bench", 0, It.IsAny<Set>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new UpdateSetCommandHandler(repository.Object, validator.Object);
 
@@ -47,7 +47,15 @@ public class UpdateSetCommandHandlerTests
         Duration = TimeSpan.FromMinutes(40),
         CaloriesBurned = 300,
         WorkoutDate = new DateTime(2026, 3, 26),
-        CreatedAt = new DateTime(2026, 3, 1)
+        CreatedAt = new DateTime(2026, 3, 1),
+        Exercises =
+        [
+            new Exercise
+            {
+                Name = "Bench",
+                Sets = [new Set { Reps = 8, Weight = 80 }]
+            }
+        ]
     };
 }
 

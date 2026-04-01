@@ -50,11 +50,10 @@ public class UpdateWorkoutCommandHandler(
         workout.CaloriesBurned = request.WorkoutDto.CaloriesBurned;
         workout.WorkoutDate = request.WorkoutDto.WorkoutDate;
 
-        var updateResult = await repository.UpdateAsync(workout, cancellationToken);
-
-        if (updateResult.IsFailure)
+        var isUpdated = await repository.UpdateAsync(workout, cancellationToken);
+        if (!isUpdated)
         {
-            return Result.Failure<UpdateWorkoutResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return Result.Success<UpdateWorkoutResponse, List<Error>>(MapToResponse(workout));

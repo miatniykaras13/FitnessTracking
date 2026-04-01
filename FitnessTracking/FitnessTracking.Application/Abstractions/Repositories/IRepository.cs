@@ -9,7 +9,7 @@ public interface IRepository<TEntity, in TId>
 
     Task<UnitResult<Error>> AddAsync(TEntity entity, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> UpdateAsync(TEntity photo, CancellationToken cancellationToken);
+    Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
 
     Task<bool> DeleteAsync(TId id, CancellationToken cancellationToken);
 }

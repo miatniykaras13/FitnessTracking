@@ -48,11 +48,17 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> UpdateAsync(WorkoutPhoto photo, CancellationToken cancellationToken)
+    public async Task<bool> UpdateAsync(WorkoutPhoto workout, CancellationToken cancellationToken)
     {
-        dbContext.WorkoutPhotos.Update(photo);
+        var exists = await dbContext.WorkoutPhotos.AnyAsync(p => p.Id == workout.Id, cancellationToken);
+        if (!exists)
+        {
+            return false;
+        }
+
+        dbContext.WorkoutPhotos.Update(workout);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)

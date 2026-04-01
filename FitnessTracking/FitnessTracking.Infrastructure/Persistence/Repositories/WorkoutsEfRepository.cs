@@ -32,11 +32,17 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> UpdateAsync(Workout photo, CancellationToken cancellationToken)
+    public async Task<bool> UpdateAsync(Workout workout, CancellationToken cancellationToken)
     {
-        dbContext.Workouts.Update(photo);
+        var exists = await dbContext.Workouts.AnyAsync(w => w.Id == workout.Id, cancellationToken);
+        if (!exists)
+        {
+            return false;
+        }
+
+        dbContext.Workouts.Update(workout);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
@@ -137,7 +143,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> UpdateExerciseAsync(
+    public async Task<bool> UpdateExerciseAsync(
         Guid workoutId,
         string exerciseName,
         Exercise exercise,
@@ -148,32 +154,24 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return false;
         }
 
         var existingExercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (existingExercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
-        }
-
-        var hasNameConflict = workout.Exercises.Any(e =>
-            !ReferenceEquals(e, existingExercise) &&
-            string.Equals(e.Name, exercise.Name, StringComparison.OrdinalIgnoreCase));
-        if (hasNameConflict)
-        {
-            return UnitResult.Failure(WorkoutErrors.ExerciseAlreadyExists(workoutId, exercise.Name));
+            return false;
         }
 
         existingExercise.Name = exercise.Name;
         existingExercise.Sets = exercise.Sets;
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
-    public async Task<UnitResult<Error>> UpdateExercisesAsync(
+    public async Task<bool> UpdateExercisesAsync(
         Guid workoutId,
         IReadOnlyList<Exercise> exercises,
         CancellationToken cancellationToken)
@@ -183,21 +181,13 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
-        }
-
-        var duplicateName = exercises
-            .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault(g => g.Count() > 1)?.Key;
-        if (duplicateName is not null)
-        {
-            return UnitResult.Failure(WorkoutErrors.ExerciseAlreadyExists(workoutId, duplicateName));
+            return false;
         }
 
         workout.Exercises = exercises.ToList();
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
 
@@ -252,7 +242,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> UpdateSetAsync(
+    public async Task<bool> UpdateSetAsync(
         Guid workoutId,
         string exerciseName,
         int setIndex,
@@ -260,35 +250,33 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         CancellationToken cancellationToken)
     {
         if (setIndex < ValidationConstants.MinZeroBasedIndex)
-        {
-            return UnitResult.Failure(WorkoutErrors.InvalidSetIndex(setIndex));
-        }
+            return false;
 
         var workout = await dbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return false;
         }
 
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
+            return false;
         }
 
         if (setIndex >= exercise.Sets.Count)
         {
-            return UnitResult.Failure(WorkoutErrors.SetNotFound(workoutId, exerciseName, setIndex));
+            return false;
         }
 
         exercise.Sets[setIndex] = set;
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
-    public async Task<UnitResult<Error>> UpdateSetsAsync(
+    public async Task<bool> UpdateSetsAsync(
         Guid workoutId,
         string exerciseName,
         IReadOnlyList<Set> sets,
@@ -298,19 +286,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return false;
         }
 
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
+            return false;
         }
 
         exercise.Sets = sets.ToList();
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
     public async Task<bool> DeleteSetAsync(

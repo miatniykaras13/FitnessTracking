@@ -69,10 +69,10 @@ public class PatchSetCommandHandler(
         existingSet.Reps = patchedDto.Reps!.Value;
         existingSet.Weight = patchedDto.Weight!.Value;
 
-        var updateResult = await repository.UpdateAsync(workout, cancellationToken);
-        if (updateResult.IsFailure)
+        var isUpdated = await repository.UpdateAsync(workout, cancellationToken);
+        if (!isUpdated)
         {
-            return Result.Failure<PatchSetResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<PatchSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return Result.Success<PatchSetResponse, List<Error>>(new PatchSetResponse(existingSet.Reps, existingSet.Weight));
