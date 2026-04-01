@@ -2,13 +2,12 @@
 using System.Text.Json.Serialization;
 using FitnessTracking.Api.Constants;
 using FitnessTracking.Infrastructure;
-using Carter;
 using FitnessTracking.Application;
 using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
 namespace FitnessTracking.Api;
@@ -29,11 +28,11 @@ public static class DependencyInjection
 
     private static IServiceCollection AddWeb(this IServiceCollection services)
     {
-        services.AddCarter();
+        services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.Configure<JsonOptions>(options =>
         {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
         services.AddSwaggerGen(options =>
         {

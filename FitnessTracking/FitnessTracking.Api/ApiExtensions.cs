@@ -1,7 +1,6 @@
 ﻿using FitnessTracking.Api.Constants;
 using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Api.Middleware;
-using Carter;
 using FitnessTracking.Shared.Constants;
 using Microsoft.Extensions.FileProviders;
 
@@ -15,7 +14,7 @@ public static class ApiExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseUploadsStaticFiles(configuration);
-        app.MapCarter();
+        app.MapControllers();
         app.UseDevelopmentSwagger();
         app.UseHttpsRedirection();
 
