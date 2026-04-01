@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Domain.Models;
+namespace FitnessTracking.Domain.Models;
 
 public class Set
 {

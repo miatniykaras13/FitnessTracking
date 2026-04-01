@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Application.Filters;
+namespace FitnessTracking.Application.Filters;
 
 public record WorkoutFilter(
     string? Type,

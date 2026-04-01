@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Validators;
+using FitnessTracking.Application.Validators;
 using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.CreateWorkout;

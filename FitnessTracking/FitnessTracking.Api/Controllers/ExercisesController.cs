@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.AddExercise;
+using FitnessTracking.Application.Features.Commands.AddExercise;
 using FitnessTracking.Application.Features.Commands.DeleteExercise;
 using FitnessTracking.Application.Features.Commands.UpdateExercise;
 using FitnessTracking.Application.Features.Commands.UpdateExercises;

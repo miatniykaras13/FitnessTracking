@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Domain.Enums;
+namespace FitnessTracking.Domain.Enums;
 
 public enum WorkoutType
 {

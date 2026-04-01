@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 

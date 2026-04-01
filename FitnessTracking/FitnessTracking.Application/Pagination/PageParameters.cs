@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Constants;
+using FitnessTracking.Application.Constants;
 
 namespace FitnessTracking.Application.Pagination;
 

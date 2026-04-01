@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Shared.Errors;
+namespace FitnessTracking.Shared.Errors;
 
 public enum ErrorType
 {

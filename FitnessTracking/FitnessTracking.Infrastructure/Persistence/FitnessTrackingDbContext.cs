@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Domain.Models;
+using FitnessTracking.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

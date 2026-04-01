@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Domain.Models;
+using FitnessTracking.Domain.Models;
 
 namespace FitnessTracking.Application.Abstractions.Auth;
 

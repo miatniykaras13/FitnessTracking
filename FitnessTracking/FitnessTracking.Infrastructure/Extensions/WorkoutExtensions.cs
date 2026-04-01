@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;

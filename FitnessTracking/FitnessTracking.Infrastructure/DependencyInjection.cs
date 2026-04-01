@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Abstractions.Auth;
+using FitnessTracking.Application.Abstractions.Auth;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Infrastructure.Helpers;

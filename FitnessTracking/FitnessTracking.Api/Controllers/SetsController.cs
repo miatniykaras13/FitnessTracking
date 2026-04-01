@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 using FitnessTracking.Application.Features.Commands.AddSet;
 using FitnessTracking.Application.Features.Commands.DeleteSet;
 using FitnessTracking.Application.Features.Commands.PatchSet;

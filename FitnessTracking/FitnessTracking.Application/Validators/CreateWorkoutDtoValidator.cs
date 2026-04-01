@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Constants;
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Shared.Contracts;
 using FluentValidation;

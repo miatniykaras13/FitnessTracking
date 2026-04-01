@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.LoginUser;
+using FitnessTracking.Application.Features.Commands.LoginUser;
 using FitnessTracking.Application.Features.Commands.RegisterUser;
 using FitnessTracking.Shared.Contracts;
 using MediatR;

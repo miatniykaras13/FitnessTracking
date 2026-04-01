@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
+using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 using FitnessTracking.Application.Features.Commands.DeleteWorkoutPhoto;
 using FitnessTracking.Application.Features.Queries.GetWorkoutPhoto;
 using MediatR;

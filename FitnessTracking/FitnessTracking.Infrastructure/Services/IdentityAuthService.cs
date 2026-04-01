@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Auth;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;

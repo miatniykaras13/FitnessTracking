@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Extensions;

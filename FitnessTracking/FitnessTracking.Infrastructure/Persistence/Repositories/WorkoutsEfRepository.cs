@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;

@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Filters;
+using FitnessTracking.Application.Filters;
 using FitnessTracking.Application.Pagination;
 using FitnessTracking.Application.Sorting;
 using FitnessTracking.Domain.Models;
