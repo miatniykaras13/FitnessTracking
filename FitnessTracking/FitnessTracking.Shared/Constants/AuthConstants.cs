@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Shared.Constants;
+namespace FitnessTracking.Shared.Constants;
 
 public static class AuthConstants
 {

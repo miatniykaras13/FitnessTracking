@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Shared.Contracts;
+using FitnessTracking.Shared.Contracts;
 
 namespace FitnessTracking.Application.Features.Commands.UpdateSets;
 

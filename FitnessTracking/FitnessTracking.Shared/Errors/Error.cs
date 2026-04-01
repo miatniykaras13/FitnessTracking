@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace FitnessTracking.Shared.Errors;
 
@@ -66,7 +66,7 @@ public class Error
 
     public static Error Forbidden(string obj, string? message = null) =>
         new($"{obj}.is_forbidden", ErrorType.Forbidden, message);
-    
+
     public static Error Unauthorized(string? message = null) =>
         new($"user.is_unauthorized", ErrorType.Unauthorized, message);
 

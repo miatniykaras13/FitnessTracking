@@ -10,9 +10,7 @@ public class LoginUserCommandHandler(
     IAuthService authService)
     : ICommandHandler<LoginUserCommand, Result<LoginUserResponse, List<Error>>>
 {
-    public async Task<Result<LoginUserResponse, List<Error>>> Handle(
-        LoginUserCommand request,
-        CancellationToken cancellationToken)
+    public async Task<Result<LoginUserResponse, List<Error>>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
         var user = await authService.ValidateCredentialsAsync(request.Email, request.Password, cancellationToken);
 

@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Auth;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
@@ -8,10 +8,7 @@ namespace FitnessTracking.Infrastructure.Services;
 
 public class IdentityAuthService(UserManager<IdentityUser> userManager) : IAuthService
 {
-    public async Task<Result<AuthUser, List<Error>>> RegisterAsync(
-        string email,
-        string password,
-        CancellationToken cancellationToken)
+    public async Task<Result<AuthUser, List<Error>>> RegisterAsync(string email, string password, CancellationToken cancellationToken)
     {
         var user = new IdentityUser
         {
@@ -46,31 +43,22 @@ public class IdentityAuthService(UserManager<IdentityUser> userManager) : IAuthS
         {
             nameof(IdentityErrorDescriber.DuplicateUserName) =>
                 Error.Conflict("user.username", identityError.Description),
-
             nameof(IdentityErrorDescriber.DuplicateEmail) =>
                 Error.Conflict("user.email", identityError.Description),
-
             nameof(IdentityErrorDescriber.InvalidUserName) =>
                 Error.Validation("user.username", identityError.Description),
-
             nameof(IdentityErrorDescriber.InvalidEmail) =>
                 Error.Validation("user.email", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordMismatch) =>
                 Error.Validation("user.password", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordTooShort) =>
                 Error.Validation("user.password", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordRequiresDigit) =>
                 Error.Validation("user.password", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordRequiresUpper) =>
                 Error.Validation("user.password", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordRequiresLower) =>
                 Error.Validation("user.password", identityError.Description),
-
             nameof(IdentityErrorDescriber.PasswordRequiresNonAlphanumeric) =>
                 Error.Validation("user.password", identityError.Description),
 
@@ -78,4 +66,3 @@ public class IdentityAuthService(UserManager<IdentityUser> userManager) : IAuthS
         }).ToList();
     }
 }
-

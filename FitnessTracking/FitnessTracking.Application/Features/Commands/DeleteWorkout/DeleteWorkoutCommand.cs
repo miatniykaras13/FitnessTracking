@@ -5,5 +5,5 @@ using FitnessTracking.Shared.Errors;
 namespace FitnessTracking.Application.Features.Commands.DeleteWorkout;
 
 public record DeleteWorkoutCommand(
-    Guid WorkoutId,
-    Guid UserId) : ICommand<UnitResult<List<Error>>>;
+    Guid UserId,
+    Guid WorkoutId) : ICommand<UnitResult<List<Error>>>;

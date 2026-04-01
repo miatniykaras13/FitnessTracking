@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Domain.Models;
+using FitnessTracking.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,7 +13,7 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
         {
             exerciseBuilder.WithOwner().HasForeignKey("WorkoutId");
             exerciseBuilder.HasKey("WorkoutId", "Name");
-        
+
             exerciseBuilder.OwnsMany(e => e.Sets, setBuilder =>
             {
                 setBuilder.WithOwner().HasForeignKey("WorkoutId", "Name");
@@ -24,8 +24,8 @@ public class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
             .WithOne(p => p.Workout)
             .HasForeignKey(p => p.WorkoutId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasIndex(w => w.UserId);
     }
-    
+
 }

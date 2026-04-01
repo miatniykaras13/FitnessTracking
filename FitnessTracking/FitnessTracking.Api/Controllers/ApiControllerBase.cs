@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Text.Json.Nodes;
 using CSharpFunctionalExtensions;
 using FitnessTracking.Api.Exceptions;
@@ -13,19 +13,19 @@ public abstract class ApiControllerBase(ISender sender) : ControllerBase
 {
     protected async Task<IActionResult> Send<TResponse>(
         IRequest<Result<TResponse, List<Error>>> request,
-        CancellationToken ct,
+        CancellationToken cancellationToken,
         Func<TResponse, IActionResult>? onSuccess = null)
     {
-        var response = await sender.Send(request, ct);
+        var response = await sender.Send(request, cancellationToken);
         return response.ToActionResult(this, onSuccess);
     }
 
     protected async Task<IActionResult> Send(
         IRequest<UnitResult<List<Error>>> request,
-        CancellationToken ct,
+        CancellationToken cancellationToken,
         Func<IActionResult>? onSuccess = null)
     {
-        var response = await sender.Send(request, ct);
+        var response = await sender.Send(request, cancellationToken);
         return response.ToActionResult(this, onSuccess);
     }
 
@@ -40,17 +40,16 @@ public abstract class ApiControllerBase(ISender sender) : ControllerBase
         return true;
     }
 
-    protected static async Task<byte[]> ReadFileAsync(IFormFile file, CancellationToken ct)
+    protected static async Task<byte[]> ReadFileAsync(IFormFile file, CancellationToken cancellationToken)
     {
         await using var stream = file.OpenReadStream();
         await using var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream, ct);
+        await stream.CopyToAsync(memoryStream, cancellationToken);
         return memoryStream.ToArray();
     }
 
     protected static JsonObject RequirePatch(JsonObject? patchObject)
     {
-
         if (patchObject is null)
         {
             throw new InvalidPatchDocumentException("Patch body must be a JsonObject.");
@@ -59,6 +58,3 @@ public abstract class ApiControllerBase(ISender sender) : ControllerBase
         return patchObject;
     }
 }
-
-
-

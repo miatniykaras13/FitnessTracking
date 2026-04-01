@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json.Serialization;
 using FitnessTracking.Api.Constants;
 using FitnessTracking.Infrastructure;
@@ -93,6 +93,6 @@ public static class DependencyInjection
         services.AddAuthorizationBuilder();
         return services;
     }
-    
-    
+
+
 }

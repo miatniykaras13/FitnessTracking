@@ -1,8 +1,8 @@
-﻿using FitnessTracking.Domain.Abstractions;
+using FitnessTracking.Domain.Abstractions;
 
 namespace FitnessTracking.Application.Abstractions.Repositories;
 
-public interface IRepository<TEntity, in TId> 
+public interface IRepository<TEntity, in TId>
     where TEntity : class, IDocument
 {
     Task<TEntity?> GetByIdAsync(TId id, CancellationToken cancellationToken);

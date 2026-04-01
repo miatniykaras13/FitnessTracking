@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 using FitnessTracking.Application.Features.Commands.AddSet;
 using FitnessTracking.Application.Features.Commands.DeleteSet;
 using FitnessTracking.Application.Features.Commands.PatchSet;
@@ -25,16 +25,15 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
         Guid workoutId,
         string exerciseName,
         [FromBody] AddSetDto dto,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        var command = new AddSetCommand(workoutId, userId, exerciseName, dto);
-        return await Send(command, ct, created =>
-            Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(exerciseName)}/sets", created));
+        var command = new AddSetCommand(userId, workoutId, exerciseName, dto);
+        return await Send(command, cancellationToken, created => Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(exerciseName)}/sets", created));
     }
 
     [HttpPut("workouts/{workoutId:guid}/exercises/{exerciseName}/sets/{setIndex:int}")]
@@ -50,14 +49,14 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
         string exerciseName,
         int setIndex,
         [FromBody] UpdateSetDto dto,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new UpdateSetCommand(userId, workoutId, exerciseName, setIndex, dto), ct);
+        return await Send(new UpdateSetCommand(userId, workoutId, exerciseName, setIndex, dto), cancellationToken);
     }
 
     [HttpPut("workouts/{workoutId:guid}/exercises/{exerciseName}/sets")]
@@ -72,14 +71,14 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
         Guid workoutId,
         string exerciseName,
         [FromBody] UpdateSetsDto dto,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new UpdateSetsCommand(userId, workoutId, exerciseName, dto), ct);
+        return await Send(new UpdateSetsCommand(userId, workoutId, exerciseName, dto), cancellationToken);
     }
 
     [HttpPatch("workouts/{workoutId:guid}/exercises/{exerciseName}/sets/{setIndex:int}")]
@@ -96,7 +95,7 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
         string exerciseName,
         int setIndex,
         [FromBody] JsonObject? patch,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
@@ -104,7 +103,7 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
         }
 
         var command = new PatchSetCommand(userId, workoutId, exerciseName, setIndex, RequirePatch(patch));
-        return await Send(command, ct);
+        return await Send(command, cancellationToken);
     }
 
     [HttpDelete("workouts/{workoutId:guid}/exercises/{exerciseName}/sets/{setIndex:int}")]
@@ -114,15 +113,13 @@ public class SetsController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid workoutId, string exerciseName, int setIndex, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid workoutId, string exerciseName, int setIndex, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new DeleteSetCommand(userId, workoutId, exerciseName, setIndex), ct);
+        return await Send(new DeleteSetCommand(userId, workoutId, exerciseName, setIndex), cancellationToken);
     }
 }
-
-

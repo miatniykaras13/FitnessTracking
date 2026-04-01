@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.AddExercise;
+using FitnessTracking.Application.Features.Commands.AddExercise;
 using FitnessTracking.Application.Features.Commands.DeleteExercise;
 using FitnessTracking.Application.Features.Commands.UpdateExercise;
 using FitnessTracking.Application.Features.Commands.UpdateExercises;
@@ -19,9 +19,9 @@ public class ExercisesController(ISender sender) : ApiControllerBase(sender)
     [EndpointDescription("Returns exercises and sets for the specified workout.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByWorkout(Guid workoutId, CancellationToken ct)
+    public async Task<IActionResult> GetByWorkout(Guid workoutId, CancellationToken cancellationToken)
     {
-        return await Send(new GetExercisesByWorkoutIdQuery(workoutId), ct);
+        return await Send(new GetExercisesByWorkoutIdQuery(workoutId), cancellationToken);
     }
 
     [HttpPost("workouts/{workoutId:guid}/exercises")]
@@ -32,7 +32,7 @@ public class ExercisesController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Add(Guid workoutId, [FromBody] AddExerciseDto dto, CancellationToken ct)
+    public async Task<IActionResult> Add(Guid workoutId, [FromBody] AddExerciseDto dto, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
@@ -40,10 +40,9 @@ public class ExercisesController(ISender sender) : ApiControllerBase(sender)
         }
 
         var command = new AddExerciseCommand(userId, workoutId, dto);
-        return await Send(command, ct, created =>
-            Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(created.Name)}", created));
+        return await Send(command, cancellationToken, created => Created($"/workouts/{workoutId}/exercises/{Uri.EscapeDataString(created.Name)}", created));
     }
-    
+
 
     [HttpPut("workouts/{workoutId:guid}/exercises")]
     [Authorize]
@@ -54,17 +53,14 @@ public class ExercisesController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> UpdateAll(
-        Guid workoutId,
-        [FromBody] UpdateExercisesDto dto,
-        CancellationToken ct)
+    public async Task<IActionResult> UpdateAll(Guid workoutId, [FromBody] UpdateExercisesDto dto, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new UpdateExercisesCommand(userId, workoutId, dto), ct);
+        return await Send(new UpdateExercisesCommand(userId, workoutId, dto), cancellationToken);
     }
 
     [HttpDelete("workouts/{workoutId:guid}/exercises/{exerciseName}")]
@@ -74,16 +70,14 @@ public class ExercisesController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid workoutId, string exerciseName, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid workoutId, string exerciseName, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new DeleteExerciseCommand(userId, workoutId, exerciseName), ct);
+        return await Send(new DeleteExerciseCommand(userId, workoutId, exerciseName), cancellationToken);
     }
 }
-
-
 

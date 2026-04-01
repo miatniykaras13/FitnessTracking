@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Application.Constants;
+namespace FitnessTracking.Application.Constants;
 
 public static class ValidationConstants
 {

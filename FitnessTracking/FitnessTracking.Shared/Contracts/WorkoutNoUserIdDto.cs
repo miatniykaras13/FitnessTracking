@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Shared.Contracts;
+namespace FitnessTracking.Shared.Contracts;
 
 public record WorkoutNoUserIdDto(
     Guid WorkoutId,

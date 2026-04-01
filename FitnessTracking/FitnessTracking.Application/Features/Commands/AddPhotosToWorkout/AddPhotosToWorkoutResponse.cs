@@ -1,3 +1,3 @@
-﻿namespace FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
+namespace FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 
 public record AddPhotosToWorkoutResponse(Guid PhotoId, string Path);

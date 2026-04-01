@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Api.Exceptions;
+namespace FitnessTracking.Api.Exceptions;
 
 public sealed class InvalidErrorListStateException(string message) : Exception(message);
 

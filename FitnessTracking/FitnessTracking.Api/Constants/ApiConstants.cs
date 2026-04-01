@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Api.Constants;
+namespace FitnessTracking.Api.Constants;
 
 public static class ApiConstants
 {

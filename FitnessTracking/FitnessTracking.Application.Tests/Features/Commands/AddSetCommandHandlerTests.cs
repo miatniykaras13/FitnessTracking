@@ -18,7 +18,7 @@ public class AddSetCommandHandlerTests
         var validator = new Mock<IValidator<AddSetCommand>>();
         var userId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
-        var command = new AddSetCommand(workoutId, userId, "Bench", new AddSetDto(10, 80));
+        var command = new AddSetCommand(userId, workoutId, "Bench", new AddSetDto(10, 80));
 
         validator.Setup(x => x.ValidateAsync(It.IsAny<AddSetCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

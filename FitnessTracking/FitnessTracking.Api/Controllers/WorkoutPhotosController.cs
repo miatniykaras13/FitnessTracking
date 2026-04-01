@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
+using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 using FitnessTracking.Application.Features.Commands.DeleteWorkoutPhoto;
 using FitnessTracking.Application.Features.Queries.GetWorkoutPhoto;
 using MediatR;
@@ -23,7 +23,7 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
     public async Task<IActionResult> Add(
         Guid workoutId,
         [FromForm] AddPhotoToWorkoutForm form,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
@@ -31,7 +31,7 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
         }
 
         var file = form.File;
-        var content = await ReadFileAsync(file, ct);
+        var content = await ReadFileAsync(file, cancellationToken);
 
         var command = new AddPhotosToWorkoutCommand(
             userId,
@@ -39,8 +39,7 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
             file.FileName,
             content);
 
-        return await Send(command, ct, created =>
-            Created($"/workouts/{workoutId}/photos/{created.PhotoId}", created));
+        return await Send(command, cancellationToken, created => Created($"/workouts/{workoutId}/photos/{created.PhotoId}", created));
     }
 
     [HttpGet("workouts/{workoutId:guid}/photos/{photoId:guid}")]
@@ -49,9 +48,9 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
     [EndpointDescription("Returns workout photo metadata by identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(Guid workoutId, Guid photoId, CancellationToken ct)
+    public async Task<IActionResult> Get(Guid workoutId, Guid photoId, CancellationToken cancellationToken)
     {
-        return await Send(new GetWorkoutPhotoQuery(workoutId, photoId), ct);
+        return await Send(new GetWorkoutPhotoQuery(workoutId, photoId), cancellationToken);
     }
 
     [HttpGet("workouts/{workoutId:guid}/photos/{photoId:guid}/content")]
@@ -60,10 +59,9 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
     [EndpointDescription("Redirects to the static file URL for the workout photo.")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetContent(Guid workoutId, Guid photoId, CancellationToken ct)
+    public async Task<IActionResult> GetContent(Guid workoutId, Guid photoId, CancellationToken cancellationToken)
     {
-        return await Send(new GetWorkoutPhotoQuery(workoutId, photoId), ct,
-            success => Redirect(success.Path));
+        return await Send(new GetWorkoutPhotoQuery(workoutId, photoId), cancellationToken, success => Redirect(success.Path));
     }
 
     [HttpDelete("workouts/{workoutId:guid}/photos/{photoId:guid}")]
@@ -73,14 +71,14 @@ public class WorkoutPhotosController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid workoutId, Guid photoId, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid workoutId, Guid photoId, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new DeleteWorkoutPhotoCommand(userId, workoutId, photoId), ct);
+        return await Send(new DeleteWorkoutPhotoCommand(userId, workoutId, photoId), cancellationToken);
     }
 }
 
@@ -88,5 +86,4 @@ public class AddPhotoToWorkoutForm
 {
     public IFormFile File { get; set; } = default!;
 }
-
 

@@ -21,7 +21,7 @@ public class UpdateWorkoutCommandHandlerTests
         var userId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
         var dto = new UpdateWorkoutDto("Updated", "HIIT", TimeSpan.FromMinutes(25), 350, new DateTime(2026, 3, 26));
-        var command = new UpdateWorkoutCommand(workoutId, userId, dto);
+        var command = new UpdateWorkoutCommand(userId, workoutId, dto);
         var workout = CreateWorkout(userId, workoutId);
 
         validator.Setup(x => x.ValidateAsync(It.IsAny<UpdateWorkoutCommand>(), It.IsAny<CancellationToken>()))

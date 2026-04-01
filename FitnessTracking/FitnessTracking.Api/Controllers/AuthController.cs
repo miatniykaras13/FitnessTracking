@@ -1,4 +1,4 @@
-﻿using FitnessTracking.Application.Features.Commands.LoginUser;
+using FitnessTracking.Application.Features.Commands.LoginUser;
 using FitnessTracking.Application.Features.Commands.RegisterUser;
 using FitnessTracking.Shared.Contracts;
 using MediatR;
@@ -17,9 +17,9 @@ public class AuthController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto, CancellationToken ct)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto, CancellationToken cancellationToken)
     {
-        return await Send(new RegisterUserCommand(dto.Email, dto.Password), ct);
+        return await Send(new RegisterUserCommand(dto.Email, dto.Password), cancellationToken);
     }
 
     [HttpPost("auth/token")]
@@ -29,12 +29,8 @@ public class AuthController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
+    public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken cancellationToken)
     {
-        return await Send(new LoginUserCommand(dto.Email, dto.Password), ct);
+        return await Send(new LoginUserCommand(dto.Email, dto.Password), cancellationToken);
     }
 }
-
-
-
-
