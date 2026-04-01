@@ -16,7 +16,6 @@ public static class ApiExtensions
         app.UseUploadsStaticFiles(configuration);
         app.MapControllers();
         app.UseDevelopmentSwagger();
-        app.UseHttpsRedirection();
 
         return app;
     }
