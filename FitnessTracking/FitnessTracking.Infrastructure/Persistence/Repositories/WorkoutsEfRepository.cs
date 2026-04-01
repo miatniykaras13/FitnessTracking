@@ -168,7 +168,9 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext)
     public async Task<bool> UpdateSetAsync(Guid workoutId, string exerciseName, int setIndex, Set set, CancellationToken cancellationToken)
     {
         if (setIndex < ValidationConstants.MinZeroBasedIndex)
+        {
             return false;
+        }
 
         var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
