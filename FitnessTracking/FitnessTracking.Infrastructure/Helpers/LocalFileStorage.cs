@@ -1,16 +1,11 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Shared.Constants;
-using FitnessTracking.Shared.Errors;
 using Microsoft.Extensions.Configuration;
 
 namespace FitnessTracking.Infrastructure.Helpers;
 
 public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
 {
-    private const string PhotoExtensionErrorCode = "photo.extension";
-    private const string AllowedExtensionsMessage = "Only jpg, jpeg and png are allowed.";
-
     private static readonly HashSet<string> AllowedExtensions =
     [
         ".jpg",
@@ -18,7 +13,7 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         ".png"
     ];
 
-    public async Task<Result<string, Error>> SaveWorkoutPhotoAsync(
+    public async Task<string?> SaveWorkoutPhotoAsync(
         Guid workoutId,
         string fileName,
         byte[] fileContent,
@@ -27,8 +22,7 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
         {
-            return Result.Failure<string, Error>(
-                Error.Validation(PhotoExtensionErrorCode, AllowedExtensionsMessage));
+            return null;
         }
 
         var rootPath = GetRootPath();
@@ -43,10 +37,10 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
 
         var relativePath =
             $"{FileStorageConstants.UploadsRequestPath}/{FileStorageConstants.WorkoutsFolderName}/{workoutId}/{safeFileName}";
-        return Result.Success<string, Error>(relativePath);
+        return relativePath;
     }
 
-    public Task<UnitResult<Error>> DeleteWorkoutPhotoAsync(string relativePath, CancellationToken cancellationToken)
+    public Task<bool> DeleteWorkoutPhotoAsync(string relativePath, CancellationToken cancellationToken)
     {
         var normalizedPath = relativePath.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
         var rootPath = GetRootPath();
@@ -62,11 +56,11 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         var absolutePath = Path.Combine(rootPath, normalizedPath);
         if (!File.Exists(absolutePath))
         {
-            return Task.FromResult(UnitResult.Success<Error>());
+            return Task.FromResult(true);
         }
 
         File.Delete(absolutePath);
-        return Task.FromResult(UnitResult.Success<Error>());
+        return Task.FromResult(true);
     }
 
     private string GetRootPath()

@@ -1,10 +1,8 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.DeleteWorkoutPhoto;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -84,7 +82,7 @@ public class DeleteWorkoutPhotoCommandHandlerTests
         photosRepository.Setup(x => x.DeleteAsync(photoId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         fileStorage.Setup(x => x.DeleteWorkoutPhotoAsync(photo.Path, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new DeleteWorkoutPhotoCommandHandler(photosRepository.Object, workoutsRepository.Object, fileStorage.Object, validator.Object);
 

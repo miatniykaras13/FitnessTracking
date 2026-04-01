@@ -16,6 +16,9 @@ public class AddPhotosToWorkoutCommandHandler(
     IValidator<AddPhotosToWorkoutCommand> validator)
     : ICommandHandler<AddPhotosToWorkoutCommand, Result<AddPhotosToWorkoutResponse, List<Error>>>
 {
+    private const string PhotoExtensionErrorCode = "photo.extension";
+    private const string AllowedExtensionsMessage = "Only jpg, jpeg and png are allowed.";
+
     public async Task<Result<AddPhotosToWorkoutResponse, List<Error>>> Handle(AddPhotosToWorkoutCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -36,21 +39,22 @@ public class AddPhotosToWorkoutCommandHandler(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var pathResult = await fileStorage.SaveWorkoutPhotoAsync(
+        var photoPath = await fileStorage.SaveWorkoutPhotoAsync(
             request.WorkoutId,
             request.FileName,
             request.FileContent,
             cancellationToken);
-        if (pathResult.IsFailure)
+        if (photoPath is null)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(pathResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(
+                Error.Validation(PhotoExtensionErrorCode, AllowedExtensionsMessage));
         }
 
         var photoId = Guid.NewGuid();
         var photo = new WorkoutPhoto
         {
             Id = photoId.ToString(),
-            Path = pathResult.Value,
+            Path = photoPath,
             WorkoutId = workout.Id,
             CreatedAt = DateTime.UtcNow
         };
