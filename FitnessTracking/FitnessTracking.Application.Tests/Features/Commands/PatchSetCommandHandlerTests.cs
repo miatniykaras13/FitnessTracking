@@ -34,7 +34,7 @@ public class PatchSetCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new PatchSetCommandHandler(
             _repository.Object,
@@ -67,7 +67,7 @@ public class PatchSetCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new PatchSetCommandHandler(
             _repository.Object,
@@ -104,7 +104,7 @@ public class PatchSetCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _mergePatchHelper
             .Setup(x => x.ApplyMergePatch(It.IsAny<MergePatchSetDto>(), command.Patch, It.IsAny<System.Text.Json.JsonSerializerOptions?>()))
@@ -116,7 +116,7 @@ public class PatchSetCommandHandlerTests
 
         _repository
             .Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new PatchSetCommandHandler(
             _repository.Object,

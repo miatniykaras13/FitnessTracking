@@ -24,13 +24,13 @@ public class UpdateExercisesCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateExercisesResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateExercisesResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<UpdateExercisesResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
@@ -38,10 +38,19 @@ public class UpdateExercisesCommandHandler(
 
         var exercises = request.ExerciseDtos.Exercises.Select(MapExerciseDtoToDomain).ToList();
 
-        var updateResult = await repository.UpdateExercisesAsync(request.WorkoutId, exercises, cancellationToken);
-        if (updateResult.IsFailure)
+        var duplicateName = exercises
+            .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(g => g.Count() > 1)?.Key;
+        if (duplicateName is not null)
         {
-            return Result.Failure<UpdateExercisesResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateExercisesResponse, List<Error>>(
+                WorkoutErrors.ExerciseAlreadyExists(request.WorkoutId, duplicateName));
+        }
+
+        var isUpdated = await repository.UpdateExercisesAsync(request.WorkoutId, exercises, cancellationToken);
+        if (!isUpdated)
+        {
+            return Result.Failure<UpdateExercisesResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         var response = exercises.Select(MapExerciseToResponse).ToList();

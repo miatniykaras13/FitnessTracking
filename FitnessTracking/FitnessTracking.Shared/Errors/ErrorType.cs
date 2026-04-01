@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Shared.Errors;
+namespace FitnessTracking.Shared.Errors;
 
 public enum ErrorType
 {
@@ -31,7 +31,7 @@ public enum ErrorType
     /// The operation is forbidden for the current user.
     /// </summary>
     Forbidden,
-    
+
     /// <summary>
     /// The user is unauthorized.
     /// </summary>

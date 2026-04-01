@@ -1,10 +1,12 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json.Serialization;
-using FitnessTracking.Infrastructure;
-using Carter;
+using FitnessTracking.Api.Constants;
 using FitnessTracking.Application;
+using FitnessTracking.Infrastructure;
+using FitnessTracking.Shared.Constants;
+using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -26,20 +28,20 @@ public static class DependencyInjection
 
     private static IServiceCollection AddWeb(this IServiceCollection services)
     {
-        services.AddCarter();
+        services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.Configure<JsonOptions>(options =>
         {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
         services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition(ApiConstants.Security.BearerScheme, new OpenApiSecurityScheme
             {
-                Name = "Authorization",
+                Name = ApiConstants.Security.AuthorizationHeader,
                 Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
+                Scheme = ApiConstants.Security.BearerScheme,
+                BearerFormat = ApiConstants.Security.JwtFormat,
                 In = ParameterLocation.Header
             });
 
@@ -51,7 +53,7 @@ public static class DependencyInjection
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = ApiConstants.Security.BearerScheme
                         }
                     },
                     Array.Empty<string>()
@@ -76,21 +78,21 @@ public static class DependencyInjection
             {
                 o.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidIssuer = configuration["Auth:Issuer"],
-                    ValidAudience = configuration["Auth:Audience"],
+                    ValidIssuer = configuration[AuthConstants.IssuerPath],
+                    ValidAudience = configuration[AuthConstants.AudiencePath],
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Auth:Secret"] ??
-                                               throw new InvalidOperationException("Auth secret must be provided")))
+                        Encoding.UTF8.GetBytes(configuration[AuthConstants.SecretPath] ??
+                                               throw new MissingConfigurationException(AuthConstants.SecretPath)))
                 };
             });
 
         services.AddAuthorizationBuilder();
         return services;
     }
-    
-    
+
+
 }

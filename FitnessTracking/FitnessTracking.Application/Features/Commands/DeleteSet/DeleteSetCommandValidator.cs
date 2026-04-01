@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.DeleteSet;
@@ -9,7 +10,7 @@ public class DeleteSetCommandValidator : AbstractValidator<DeleteSetCommand>
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.ExerciseName).NotEmpty();
-        RuleFor(x => x.SetIndex).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.SetIndex).GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
     }
 }
 

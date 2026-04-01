@@ -1,10 +1,8 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -29,13 +27,13 @@ public class AddPhotosToWorkoutCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<AddPhotosToWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         workoutsRepository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
         fileStorage.Setup(x => x.SaveWorkoutPhotoAsync(workoutId, "photo.jpg", command.FileContent, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<string, Error>("uploads/workouts/photo.jpg"));
+            .ReturnsAsync("uploads/workouts/photo.jpg");
         photosRepository.Setup(x => x.AddAsync(It.IsAny<WorkoutPhoto>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync((WorkoutPhoto p, CancellationToken _) => p);
         workoutsRepository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new AddPhotosToWorkoutCommandHandler(fileStorage.Object, photosRepository.Object, workoutsRepository.Object, validator.Object);
 

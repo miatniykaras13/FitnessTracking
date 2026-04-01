@@ -24,16 +24,25 @@ public class UpdateSetsCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateSetsResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<UpdateSetsResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
+        var exerciseExists = workout.Exercises.Any(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (!exerciseExists)
+        {
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         var sets = request.SetDtos.Sets.Select(s => new Set
@@ -42,14 +51,15 @@ public class UpdateSetsCommandHandler(
             Weight = s.Weight
         }).ToList();
 
-        var updateResult = await repository.UpdateSetsAsync(
+        var isUpdated = await repository.UpdateSetsAsync(
             request.WorkoutId,
             request.ExerciseName,
             sets,
             cancellationToken);
-        if (updateResult.IsFailure)
+        if (!isUpdated)
         {
-            return Result.Failure<UpdateSetsResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateSetsResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         return Result.Success<UpdateSetsResponse, List<Error>>(

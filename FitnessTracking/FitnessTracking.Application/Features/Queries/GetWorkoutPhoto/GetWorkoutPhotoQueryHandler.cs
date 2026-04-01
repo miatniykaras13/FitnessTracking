@@ -24,24 +24,27 @@ public class GetWorkoutPhotoQueryHandler(
             return validationResult.Errors.ToErrors(nameof(WorkoutPhoto).ToLower());
         }
 
-        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
 
-        var photoResult = await photosRepository.GetByWorkoutIdAndPhotoIdAsync(
-            request.WorkoutId,
-            request.PhotoId,
-            cancellationToken);
-
-        if (photoResult.IsFailure)
+        var photo = await photosRepository.GetByIdAsync(request.PhotoId, cancellationToken);
+        if (photo is null)
         {
-            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(photoResult.Error);
+            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(
+                WorkoutErrors.WorkoutPhotoNotFound(request.WorkoutId, request.PhotoId));
         }
 
-        var photo = photoResult.Value;
+        if (!string.Equals(photo.WorkoutId, request.WorkoutId.ToString(), StringComparison.Ordinal))
+        {
+            return Result.Failure<GetWorkoutPhotoResponse, List<Error>>(
+                WorkoutErrors.WorkoutPhotoNotFound(request.WorkoutId, request.PhotoId));
+        }
+
         return Result.Success<GetWorkoutPhotoResponse, List<Error>>(
             new GetWorkoutPhotoResponse(
                 Guid.Parse(photo.Id),

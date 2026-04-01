@@ -1,15 +1,15 @@
-﻿using CSharpFunctionalExtensions;
-using FitnessTracking.Shared.Errors;
+using FitnessTracking.Domain.Abstractions;
 
 namespace FitnessTracking.Application.Abstractions.Repositories;
 
 public interface IRepository<TEntity, in TId>
+    where TEntity : class, IDocument
 {
-    Task<Result<TEntity, Error>> GetByIdAsync(TId id, CancellationToken cancellationToken);
+    Task<TEntity?> GetByIdAsync(TId id, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> AddAsync(TEntity entity, CancellationToken cancellationToken);
+    Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> UpdateAsync(TEntity photo, CancellationToken cancellationToken);
+    Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> DeleteAsync(TId id, CancellationToken cancellationToken);
+    Task<bool> DeleteAsync(TId id, CancellationToken cancellationToken);
 }

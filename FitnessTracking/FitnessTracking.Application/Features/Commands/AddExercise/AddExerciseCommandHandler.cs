@@ -22,13 +22,13 @@ public class AddExerciseCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<AddExerciseResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<AddExerciseResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<AddExerciseResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
@@ -40,13 +40,21 @@ public class AddExerciseCommandHandler(
             Sets = MapSetDtos(request.ExerciseDto.Sets)
         };
 
-        var addResult = await repository.AddExerciseAsync(request.WorkoutId, exercise, cancellationToken);
-        if (addResult.IsFailure)
+        var hasDuplicateExercise = workout.Exercises.Any(e =>
+            string.Equals(e.Name, exercise.Name, StringComparison.OrdinalIgnoreCase));
+        if (hasDuplicateExercise)
         {
-            return Result.Failure<AddExerciseResponse, List<Error>>(addResult.Error);
+            return Result.Failure<AddExerciseResponse, List<Error>>(
+                WorkoutErrors.ExerciseAlreadyExists(request.WorkoutId, exercise.Name));
         }
 
-        return Result.Success<AddExerciseResponse, List<Error>>(MapExerciseToResponse(exercise));
+        var addedExercise = await repository.AddExerciseAsync(request.WorkoutId, exercise, cancellationToken);
+        if (addedExercise is null)
+        {
+            return Result.Failure<AddExerciseResponse, List<Error>>(Error.Internal(message: "Failed to add exercise."));
+        }
+
+        return Result.Success<AddExerciseResponse, List<Error>>(MapExerciseToResponse(addedExercise));
     }
 
     private static AddExerciseResponse MapExerciseToResponse(Exercise exercise)

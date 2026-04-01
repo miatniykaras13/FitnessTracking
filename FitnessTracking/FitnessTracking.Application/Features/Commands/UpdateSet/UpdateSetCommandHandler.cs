@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Extensions;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Errors;
@@ -23,16 +24,30 @@ public class UpdateSetCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateSetResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<UpdateSetResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
+        var exercise = workout.Exercises.FirstOrDefault(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (exercise is null)
+        {
+            return Result.Failure<UpdateSetResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+        }
+
+        if (request.SetIndex < ValidationConstants.MinZeroBasedIndex || request.SetIndex >= exercise.Sets.Count)
+        {
+            return Result.Failure<UpdateSetResponse, List<Error>>(
+                WorkoutErrors.InvalidSetIndex(request.SetIndex));
         }
 
         var set = new Set
@@ -41,15 +56,16 @@ public class UpdateSetCommandHandler(
             Weight = request.SetDto.Weight
         };
 
-        var updateResult = await repository.UpdateSetAsync(
+        var isUpdated = await repository.UpdateSetAsync(
             request.WorkoutId,
             request.ExerciseName,
             request.SetIndex,
             set,
             cancellationToken);
-        if (updateResult.IsFailure)
+        if (!isUpdated)
         {
-            return Result.Failure<UpdateSetResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<UpdateSetResponse, List<Error>>(
+                WorkoutErrors.SetNotFound(request.WorkoutId, request.ExerciseName, request.SetIndex));
         }
 
         return Result.Success<UpdateSetResponse, List<Error>>(new UpdateSetResponse(set.Reps, set.Weight));

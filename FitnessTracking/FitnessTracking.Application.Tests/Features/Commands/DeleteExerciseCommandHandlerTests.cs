@@ -28,7 +28,7 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<Workout, Error>(WorkoutErrors.WorkoutNotFound(workoutId)));
+            .ReturnsAsync((Workout?)null);
 
         var handler = new DeleteExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -56,7 +56,7 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new DeleteExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -84,11 +84,11 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.DeleteExerciseAsync(workoutId, "Squat", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new DeleteExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -109,7 +109,8 @@ public class DeleteExerciseCommandHandlerTests
             Duration = TimeSpan.FromMinutes(45),
             CaloriesBurned = 380,
             WorkoutDate = new DateTime(2026, 3, 26),
-            CreatedAt = new DateTime(2026, 3, 1)
+            CreatedAt = new DateTime(2026, 3, 1),
+            Exercises = [new Exercise { Name = "Squat", Sets = [] }]
         };
     }
 }

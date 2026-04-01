@@ -16,6 +16,9 @@ public class AddPhotosToWorkoutCommandHandler(
     IValidator<AddPhotosToWorkoutCommand> validator)
     : ICommandHandler<AddPhotosToWorkoutCommand, Result<AddPhotosToWorkoutResponse, List<Error>>>
 {
+    private const string PhotoExtensionErrorCode = "photo.extension";
+    private const string AllowedExtensionsMessage = "Only jpg, jpeg and png are allowed.";
+
     public async Task<Result<AddPhotosToWorkoutResponse, List<Error>>> Handle(AddPhotosToWorkoutCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -24,52 +27,48 @@ public class AddPhotosToWorkoutCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var pathResult = await fileStorage.SaveWorkoutPhotoAsync(
+        var photoPath = await fileStorage.SaveWorkoutPhotoAsync(
             request.WorkoutId,
             request.FileName,
             request.FileContent,
             cancellationToken);
-        if (pathResult.IsFailure)
+        if (photoPath is null)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(pathResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(
+                Error.Validation(PhotoExtensionErrorCode, AllowedExtensionsMessage));
         }
 
-        var workout = workoutResult.Value;
         var photoId = Guid.NewGuid();
         var photo = new WorkoutPhoto
         {
             Id = photoId.ToString(),
-            Path = pathResult.Value,
+            Path = photoPath,
             WorkoutId = workout.Id,
             CreatedAt = DateTime.UtcNow
         };
 
-        var addPhotoResult = await photosRepository.AddAsync(photo, cancellationToken);
-        if (addPhotoResult.IsFailure)
+        var addedPhoto = await photosRepository.AddAsync(photo, cancellationToken);
+
+        workout.ProgressPhotos.Add(addedPhoto);
+
+        var isWorkoutUpdated = await workoutsRepository.UpdateAsync(workout, cancellationToken);
+        if (!isWorkoutUpdated)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(addPhotoResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        workout.ProgressPhotos.Add(photo);
-
-        var updateWorkoutResult = await workoutsRepository.UpdateAsync(workout, cancellationToken);
-        if (updateWorkoutResult.IsFailure)
-        {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(updateWorkoutResult.Error);
-        }
-
-        return new AddPhotosToWorkoutResponse(photoId, photo.Path);
+        return new AddPhotosToWorkoutResponse(Guid.Parse(addedPhoto.Id), addedPhoto.Path);
     }
 }

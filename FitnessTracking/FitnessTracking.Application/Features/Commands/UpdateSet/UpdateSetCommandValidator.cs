@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Validators;
 using FluentValidation;
 
@@ -10,7 +11,7 @@ public class UpdateSetCommandValidator : AbstractValidator<UpdateSetCommand>
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.WorkoutId).NotEmpty();
         RuleFor(x => x.ExerciseName).NotEmpty();
-        RuleFor(x => x.SetIndex).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.SetIndex).GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
         RuleFor(x => x.SetDto)
             .NotNull()
             .SetValidator(new UpdateSetDtoValidator());

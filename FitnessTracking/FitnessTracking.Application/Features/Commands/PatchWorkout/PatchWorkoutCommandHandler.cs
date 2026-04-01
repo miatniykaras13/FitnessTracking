@@ -28,13 +28,11 @@ public class PatchWorkoutCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<PatchWorkoutResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
-
-        var workout = workoutResult.Value;
 
         if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
@@ -75,11 +73,10 @@ public class PatchWorkoutCommandHandler(
         workout.CaloriesBurned = caloriesBurned;
         workout.WorkoutDate = workoutDate;
 
-        var updateResult = await repository.UpdateAsync(workout, cancellationToken);
-
-        if (updateResult.IsFailure)
+        var isUpdated = await repository.UpdateAsync(workout, cancellationToken);
+        if (!isUpdated)
         {
-            return Result.Failure<PatchWorkoutResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<PatchWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return Result.Success<PatchWorkoutResponse, List<Error>>(MapToResponse(workout));

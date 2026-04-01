@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using FitnessTracking.Shared.Errors;
 using FluentValidation.Results;
 

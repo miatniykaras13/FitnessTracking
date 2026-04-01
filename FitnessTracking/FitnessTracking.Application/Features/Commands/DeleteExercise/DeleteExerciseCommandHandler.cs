@@ -23,21 +23,28 @@ public class DeleteExerciseCommandHandler(
             return UnitResult.Failure(validationResult.Errors.ToErrors(nameof(Exercise).ToLower()));
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return UnitResult.Failure<List<Error>>(workoutResult.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var result = await repository.DeleteExerciseAsync(request.WorkoutId, request.ExerciseName, cancellationToken);
-        if (result.IsFailure)
+        var hasExercise = workout.Exercises.Any(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (!hasExercise)
         {
-            return UnitResult.Failure<List<Error>>(result.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
+        }
+
+        var isDeleted = await repository.DeleteExerciseAsync(request.WorkoutId, request.ExerciseName, cancellationToken);
+        if (!isDeleted)
+        {
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         return UnitResult.Success<List<Error>>();

@@ -1,4 +1,4 @@
-﻿namespace FitnessTracking.Domain.Abstractions;
+namespace FitnessTracking.Domain.Abstractions;
 
 public interface IDocument
 {

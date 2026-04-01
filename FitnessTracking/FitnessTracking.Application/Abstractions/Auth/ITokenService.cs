@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+using FitnessTracking.Domain.Models;
 
 namespace FitnessTracking.Application.Abstractions.Auth;
 
 public interface ITokenService
 {
-    string GenerateToken(IdentityUser userId);
+    string GenerateToken(AuthUser user);
 }

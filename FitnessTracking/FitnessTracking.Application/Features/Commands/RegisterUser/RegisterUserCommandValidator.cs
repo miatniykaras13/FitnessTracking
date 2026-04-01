@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FluentValidation;
 
 namespace FitnessTracking.Application.Features.Commands.RegisterUser;
@@ -7,7 +8,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     public RegisterUserCommandValidator()
     {
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
+        RuleFor(x => x.Password).NotEmpty().MinimumLength(ValidationConstants.MinPasswordLength);
     }
 }
 

@@ -24,21 +24,23 @@ public class GetExercisesByWorkoutIdQueryHandler(
             return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-
-        var exercisesResult = await repository.GetExercisesByWorkoutIdAsync(request.WorkoutId, cancellationToken);
-        if (exercisesResult.IsFailure)
+        var exercises = await repository.GetExercisesByWorkoutIdAsync(request.WorkoutId, cancellationToken);
+        if (exercises is null)
         {
-            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(exercisesResult.Error);
+            return Result.Failure<GetExercisesByWorkoutIdResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        var exerciseResponses = exercisesResult.Value.Select(MapExerciseToResponse).ToList();
-        return Result.Success<GetExercisesByWorkoutIdResponse, List<Error>>(new GetExercisesByWorkoutIdResponse(exerciseResponses));
+        var exerciseResponses = exercises.Select(MapExerciseToResponse).ToList();
+        return Result.Success<GetExercisesByWorkoutIdResponse, List<Error>>(
+            new GetExercisesByWorkoutIdResponse(exerciseResponses));
     }
 
     private static ExerciseDto MapExerciseToResponse(Exercise exercise)

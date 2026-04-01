@@ -30,9 +30,9 @@ public class GetWorkoutsByUserIdQueryHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<GetWorkoutsByUserIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByUserIdAsync(userId, filter, sort, page, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<IReadOnlyList<Workout>, Error>(workouts));
+            .ReturnsAsync(workouts);
         repository.Setup(x => x.GetCountByUserIdWithFilterAsync(userId, filter, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<int, Error>(1));
+            .ReturnsAsync(1);
 
         var handler = new GetWorkoutsByUserIdQueryHandler(repository.Object, validator.Object);
 

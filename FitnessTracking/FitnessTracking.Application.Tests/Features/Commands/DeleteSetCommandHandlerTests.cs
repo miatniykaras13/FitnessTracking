@@ -24,9 +24,9 @@ public class DeleteSetCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<DeleteSetCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
+            .ReturnsAsync(CreateWorkout(userId, workoutId));
         repository.Setup(x => x.DeleteSetAsync(workoutId, "Bench", 0, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new DeleteSetCommandHandler(repository.Object, validator.Object);
 
@@ -44,7 +44,15 @@ public class DeleteSetCommandHandlerTests
         Duration = TimeSpan.FromMinutes(40),
         CaloriesBurned = 300,
         WorkoutDate = new DateTime(2026, 3, 26),
-        CreatedAt = new DateTime(2026, 3, 1)
+        CreatedAt = new DateTime(2026, 3, 1),
+        Exercises =
+        [
+            new Exercise
+            {
+                Name = "Bench",
+                Sets = [new Set { Reps = 8, Weight = 80 }]
+            }
+        ]
     };
 }
 

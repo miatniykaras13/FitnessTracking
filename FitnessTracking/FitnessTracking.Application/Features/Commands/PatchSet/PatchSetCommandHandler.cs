@@ -27,13 +27,11 @@ public class PatchSetCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<PatchSetResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<PatchSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
-
-        var workout = workoutResult.Value;
         if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<PatchSetResponse, List<Error>>(
@@ -69,10 +67,10 @@ public class PatchSetCommandHandler(
         existingSet.Reps = patchedDto.Reps!.Value;
         existingSet.Weight = patchedDto.Weight!.Value;
 
-        var updateResult = await repository.UpdateAsync(workout, cancellationToken);
-        if (updateResult.IsFailure)
+        var isUpdated = await repository.UpdateAsync(workout, cancellationToken);
+        if (!isUpdated)
         {
-            return Result.Failure<PatchSetResponse, List<Error>>(updateResult.Error);
+            return Result.Failure<PatchSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return Result.Success<PatchSetResponse, List<Error>>(new PatchSetResponse(existingSet.Reps, existingSet.Weight));

@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Application.Pagination;
 using FluentValidation;
 
@@ -7,8 +8,9 @@ public class PageParametersValidator : AbstractValidator<PageParameters>
 {
     public PageParametersValidator()
     {
-        RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
-        RuleFor(x => x.PageSize).InclusiveBetween(1, 100);
+        RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(ValidationConstants.DefaultPageNumber);
+        RuleFor(x => x.PageSize)
+            .InclusiveBetween(ValidationConstants.MinPositiveNumber, ValidationConstants.MaxPageSize);
     }
 }
 

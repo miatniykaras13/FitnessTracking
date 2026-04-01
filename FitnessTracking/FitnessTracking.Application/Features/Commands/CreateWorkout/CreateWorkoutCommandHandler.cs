@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.CQRS;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Extensions;
@@ -42,22 +42,17 @@ public class CreateWorkoutCommandHandler(
             CreatedAt = DateTime.UtcNow
         };
 
-        var addResult = await repository.AddAsync(workout, cancellationToken);
-
-        if (addResult.IsFailure)
-        {
-            return Result.Failure<CreateWorkoutResponse, List<Error>>(addResult.Error);
-        }
+        var addedWorkout = await repository.AddAsync(workout, cancellationToken);
 
         var response = new CreateWorkoutResponse(
-            Guid.Parse(workout.Id),
-            Guid.Parse(workout.UserId),
-            workout.Title,
-            workout.Type.ToString(),
-            workout.Duration,
-            workout.CaloriesBurned,
-            workout.WorkoutDate,
-            workout.CreatedAt);
+            Guid.Parse(addedWorkout.Id),
+            Guid.Parse(addedWorkout.UserId),
+            addedWorkout.Title,
+            addedWorkout.Type.ToString(),
+            addedWorkout.Duration,
+            addedWorkout.CaloriesBurned,
+            addedWorkout.WorkoutDate,
+            addedWorkout.CreatedAt);
 
         return Result.Success<CreateWorkoutResponse, List<Error>>(response);
     }

@@ -1,3 +1,7 @@
-﻿namespace FitnessTracking.Application.Pagination;
+using FitnessTracking.Application.Constants;
 
-public record PageParameters(int PageNumber = 1, int PageSize = 10);
+namespace FitnessTracking.Application.Pagination;
+
+public record PageParameters(
+    int PageNumber = ValidationConstants.DefaultPageNumber,
+    int PageSize = ValidationConstants.DefaultPageSize);

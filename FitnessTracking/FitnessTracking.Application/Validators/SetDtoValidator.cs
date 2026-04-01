@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Shared.Contracts;
 using FluentValidation;
 
@@ -7,8 +8,8 @@ public class SetDtoValidator : AbstractValidator<SetDto>
 {
     public SetDtoValidator()
     {
-        RuleFor(x => x.Reps).GreaterThan(0);
-        RuleFor(x => x.Weight).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Reps).GreaterThan(ValidationConstants.MinZeroBasedIndex);
+        RuleFor(x => x.Weight).GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
     }
 }
 

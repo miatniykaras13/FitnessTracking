@@ -24,30 +24,22 @@ public class GetWorkoutsByUserIdQueryHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutsResult = await repository.GetByUserIdAsync(
+        var workouts = await repository.GetByUserIdAsync(
             request.UserId,
             request.Filter,
             request.SortParameters,
             request.PageParameters,
             cancellationToken);
-        
-        if (workoutsResult.IsFailure)
-        {
-            return Result.Failure<GetWorkoutsByUserIdResponse, List<Error>>(workoutsResult.Error);
-        }
 
-        var totalResult = await repository.GetCountByUserIdWithFilterAsync(
+
+        var total = await repository.GetCountByUserIdWithFilterAsync(
             request.UserId,
             request.Filter,
             cancellationToken);
-        if (totalResult.IsFailure)
-        {
-            return Result.Failure<GetWorkoutsByUserIdResponse, List<Error>>(totalResult.Error);
-        }
-        var total = totalResult.Value;
 
-        var responses = workoutsResult.Value.Select(MapToResponse).ToList();
-        return Result.Success<GetWorkoutsByUserIdResponse, List<Error>>(new GetWorkoutsByUserIdResponse(responses, total));
+        var responses = workouts.Select(MapToResponse).ToList();
+        return Result.Success<GetWorkoutsByUserIdResponse, List<Error>>(
+            new GetWorkoutsByUserIdResponse(responses, total));
     }
 
     private static WorkoutNoUserIdDto MapToResponse(Workout workout)

@@ -21,15 +21,15 @@ public class UpdateWorkoutCommandHandlerTests
         var userId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
         var dto = new UpdateWorkoutDto("Updated", "HIIT", TimeSpan.FromMinutes(25), 350, new DateTime(2026, 3, 26));
-        var command = new UpdateWorkoutCommand(workoutId, userId, dto);
+        var command = new UpdateWorkoutCommand(userId, workoutId, dto);
         var workout = CreateWorkout(userId, workoutId);
 
         validator.Setup(x => x.ValidateAsync(It.IsAny<UpdateWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
         repository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new UpdateWorkoutCommandHandler(repository.Object, validator.Object);
 

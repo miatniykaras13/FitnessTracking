@@ -1,10 +1,11 @@
-﻿using FitnessTracking.Application.Abstractions.Auth;
+using FitnessTracking.Application.Abstractions.Auth;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Infrastructure.Helpers;
 using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Infrastructure.Persistence.Repositories;
 using FitnessTracking.Infrastructure.Services;
+using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,8 +20,7 @@ public static class DependencyInjection
         services.AddDbContext<FitnessTrackingDbContext>(options =>
         {
             options.UseNpgsql(configuration.GetConnectionString("FitnessTrackingDbContext") ??
-                              throw new InvalidOperationException(
-                                  "Connection string 'FitnessTrackingDbContext' not found."));
+                              throw new MissingConfigurationException("ConnectionStrings:FitnessTrackingDbContext"));
         });
 
         services.AddScoped<IWorkoutsRepository, WorkoutsEfRepository>();
@@ -28,7 +28,8 @@ public static class DependencyInjection
         services.AddScoped<ILocalFileStorage, LocalFileStorage>();
         services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
         services.AddSingleton<ITokenService, TokenService>();
-        
+        services.AddScoped<IAuthService, IdentityAuthService>();
+
         services.AddIdentityCore<IdentityUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<FitnessTrackingDbContext>()

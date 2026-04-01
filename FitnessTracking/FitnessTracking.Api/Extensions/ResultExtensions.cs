@@ -1,4 +1,6 @@
 using CSharpFunctionalExtensions;
+using FitnessTracking.Api.Constants;
+using FitnessTracking.Api.Exceptions;
 using FitnessTracking.Shared.Errors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +8,46 @@ namespace FitnessTracking.Api.Extensions;
 
 public static class ResultExtensions
 {
+    public static IActionResult ToActionResult<T>(
+        this Result<T, List<Error>> result,
+        ControllerBase controller,
+        Func<T, IActionResult>? onSuccess = null)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess is null ? controller.Ok(result.Value) : onSuccess(result.Value);
+        }
+
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], controller.HttpContext)
+            : ToProblem(result.Error, controller.HttpContext);
+
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status
+        };
+    }
+
+    public static IActionResult ToActionResult(
+        this UnitResult<List<Error>> result,
+        ControllerBase controller,
+        Func<IActionResult>? onSuccess = null)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess is null ? controller.NoContent() : onSuccess();
+        }
+
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], controller.HttpContext)
+            : ToProblem(result.Error, controller.HttpContext);
+
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status
+        };
+    }
+
     public static Microsoft.AspNetCore.Http.IResult ToHttpResult<T>(
         this Result<T, List<Error>> result,
         HttpContext httpContext,
@@ -32,7 +74,9 @@ public static class ResultExtensions
             return onSuccess is null ? Results.NoContent() : onSuccess();
         }
 
-        var problem = ToProblem(result.Error, httpContext);
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], httpContext)
+            : ToProblem(result.Error, httpContext);
         return Results.Problem(problem);
     }
 
@@ -56,8 +100,8 @@ public static class ResultExtensions
             Instance = httpContext.Request.Path,
             Extensions =
             {
-                ["errorCode"] = error.Code,
-                ["traceId"] = httpContext.TraceIdentifier
+                [ApiConstants.ProblemDetails.ErrorCodeExtensionKey] = error.Code,
+                [ApiConstants.ProblemDetails.TraceIdExtensionKey] = httpContext.TraceIdentifier
             }
         };
 
@@ -68,14 +112,16 @@ public static class ResultExtensions
     private static ProblemDetails ToProblem(List<Error> errors, HttpContext httpContext)
     {
         if (errors.Count == 0)
-            throw new InvalidOperationException("Cannot convert an empty list of errors to a ProblemDetails object.");
+        {
+            throw new InvalidErrorListStateException("Cannot convert an empty list of errors to ProblemDetails.");
+        }
 
         var problem = ToProblem(errors[0], httpContext);
 
-        problem.Detail = "Multiple errors occurred. See the 'otherProblems' extension for details.";
+        problem.Detail = ApiConstants.ProblemDetails.MultipleErrorsDetail;
         var otherProblems = errors.Select(e => ToProblem(e, httpContext)).ToList();
 
-        problem.Extensions.Add("otherProblems", otherProblems);
+        problem.Extensions.Add(ApiConstants.ProblemDetails.OtherProblemsExtensionKey, otherProblems);
 
         return problem;
     }

@@ -1,3 +1,4 @@
+using FitnessTracking.Application.Constants;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Shared.Contracts;
 using FluentValidation;
@@ -23,7 +24,7 @@ public class MergePatchWorkoutDtoValidator : AbstractValidator<MergePatchWorkout
         When(x => x.CaloriesBurned is not null, () =>
         {
             RuleFor(x => x.CaloriesBurned)
-                .GreaterThanOrEqualTo(0);
+                .GreaterThanOrEqualTo(ValidationConstants.MinZeroBasedIndex);
         });
         When(x => x.WorkoutDate is not null, () =>
         {
