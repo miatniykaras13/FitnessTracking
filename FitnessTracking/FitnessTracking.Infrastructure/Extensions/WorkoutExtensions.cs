@@ -12,19 +12,29 @@ public static class WorkoutExtensions
     public static IQueryable<Workout> Filter(this IQueryable<Workout> query, WorkoutFilter filter)
     {
         if (!string.IsNullOrEmpty(filter.Type))
+        {
             query = query.Where(w => w.Type == Enum.Parse<WorkoutType>(filter.Type, true));
+        }
 
         if (filter.WorkoutDateFrom is not null)
+        {
             query = query.Where(w => w.WorkoutDate >= filter.WorkoutDateFrom);
+        }
 
         if (filter.WorkoutDateTo is not null)
+        {
             query = query.Where(w => w.WorkoutDate <= filter.WorkoutDateTo);
+        }
 
         if (filter.DurationFrom is not null)
+        {
             query = query.Where(w => w.Duration >= filter.DurationFrom);
+        }
 
         if (filter.DurationTo is not null)
+        {
             query = query.Where(w => w.Duration <= filter.DurationTo);
+        }
 
         return query;
     }
@@ -41,7 +51,10 @@ public static class WorkoutExtensions
     private static Expression<Func<Workout, object>> GetKeySelector(string? orderBy)
     {
         if (string.IsNullOrEmpty(orderBy))
+        {
             return w => w.CreatedAt;
+        }
+
         return orderBy switch
         {
             nameof(Workout.CaloriesBurned) => w => w.CaloriesBurned,

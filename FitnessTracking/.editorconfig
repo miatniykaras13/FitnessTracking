@@ -17,6 +17,7 @@ dotnet_separate_import_directive_groups = false
 csharp_new_line_before_open_brace = all
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
+csharp_prefer_braces = true
 
 # Prefer explicit and predictable naming across layers.
 dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion

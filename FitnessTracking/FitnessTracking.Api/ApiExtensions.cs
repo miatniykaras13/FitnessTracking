@@ -1,6 +1,6 @@
 using FitnessTracking.Api.Constants;
-using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Api.Middleware;
+using FitnessTracking.Infrastructure.Persistence;
 using FitnessTracking.Shared.Constants;
 using Microsoft.Extensions.FileProviders;
 

@@ -1,13 +1,13 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using FitnessTracking.Api.Constants;
-using FitnessTracking.Infrastructure;
 using FitnessTracking.Application;
+using FitnessTracking.Infrastructure;
 using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace FitnessTracking.Api;
