@@ -11,7 +11,7 @@ public interface IWorkoutPhotosRepository : IRepository<WorkoutPhoto, Guid>
         Guid photoId,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> DeleteByWorkoutIdAndPhotoIdAsync(
+    Task<bool> DeleteByWorkoutIdAndPhotoIdAsync(
         Guid workoutId,
         Guid photoId,
         CancellationToken cancellationToken);

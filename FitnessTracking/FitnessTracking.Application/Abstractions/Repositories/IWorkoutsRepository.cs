@@ -40,7 +40,7 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         IReadOnlyList<Exercise> exercises,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> DeleteExerciseAsync(
+    Task<bool> DeleteExerciseAsync(
         Guid workoutId,
         string exerciseName,
         CancellationToken cancellationToken);
@@ -64,7 +64,7 @@ public interface IWorkoutsRepository : IRepository<Workout, Guid>
         Set set,
         CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> DeleteSetAsync(
+    Task<bool> DeleteSetAsync(
         Guid workoutId,
         string exerciseName,
         int setIndex,

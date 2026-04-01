@@ -37,16 +37,13 @@ public class DeleteWorkoutPhotoCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<DeleteWorkoutPhotoCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        workoutsRepository.SetupSequence(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout))
+        workoutsRepository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success<Workout, Error>(workout));
 
         photosRepository.Setup(x => x.GetByWorkoutIdAndPhotoIdAsync(workoutId, photoId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success<WorkoutPhoto, Error>(photo));
-        photosRepository.Setup(x => x.DeleteByWorkoutIdAndPhotoIdAsync(workoutId, photoId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
-        workoutsRepository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+        photosRepository.Setup(x => x.DeleteAsync(photoId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         fileStorage.Setup(x => x.DeleteWorkoutPhotoAsync(photo.Path, It.IsAny<CancellationToken>()))
             .ReturnsAsync(UnitResult.Success<Error>());
 

@@ -46,25 +46,12 @@ public class DeleteWorkoutPhotoCommandHandler(
 
         var photo = photoResult.Value;
 
-        var deleteDbResult = await photosRepository.DeleteByWorkoutIdAndPhotoIdAsync(
-            request.WorkoutId,
-            request.PhotoId,
-            cancellationToken);
-        if (deleteDbResult.IsFailure)
+        var isDeleted = await photosRepository.DeleteAsync(request.PhotoId, cancellationToken);
+        if (!isDeleted)
         {
-            return UnitResult.Failure<List<Error>>(deleteDbResult.Error);
-        }
-
-        var ownedWorkoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (ownedWorkoutResult.IsSuccess)
-        {
-            var workout = ownedWorkoutResult.Value;
-            workout.ProgressPhotos.RemoveAll(p => p.Id.Equals(request.PhotoId.ToString()));
-            var updateResult = await workoutsRepository.UpdateAsync(workout, cancellationToken);
-            if (updateResult.IsFailure)
-            {
-                return UnitResult.Failure<List<Error>>(updateResult.Error);
-            }
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutPhotoNotFound(
+                request.WorkoutId,
+                request.PhotoId));
         }
 
         var deleteFileResult = await fileStorage.DeleteWorkoutPhotoAsync(photo.Path, cancellationToken);

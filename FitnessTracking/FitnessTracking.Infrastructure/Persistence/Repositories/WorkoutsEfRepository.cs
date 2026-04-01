@@ -39,19 +39,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FindAsync([id.ToString()], cancellationToken);
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(id));
+            return false;
         }
 
         dbContext.Workouts.Remove(workout);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
     public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(
@@ -201,7 +201,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
     }
 
 
-    public async Task<UnitResult<Error>> DeleteExerciseAsync(
+    public async Task<bool> DeleteExerciseAsync(
         Guid workoutId,
         string exerciseName,
         CancellationToken cancellationToken)
@@ -211,19 +211,19 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return false;
         }
 
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
+            return false;
         }
 
         workout.Exercises.Remove(exercise);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
     public async Task<UnitResult<Error>> AddSetAsync(
@@ -313,7 +313,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> DeleteSetAsync(
+    public async Task<bool> DeleteSetAsync(
         Guid workoutId,
         string exerciseName,
         int setIndex,
@@ -321,30 +321,30 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
     {
         if (setIndex < ValidationConstants.MinZeroBasedIndex)
         {
-            return UnitResult.Failure(WorkoutErrors.InvalidSetIndex(setIndex));
+            return false;
         }
 
         var workout = await dbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutNotFound(workoutId));
+            return false;
         }
 
         var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, exerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {
-            return UnitResult.Failure(WorkoutErrors.ExerciseNotFound(workoutId, exerciseName));
+            return false;
         }
 
         if (setIndex >= exercise.Sets.Count)
         {
-            return UnitResult.Failure(WorkoutErrors.SetNotFound(workoutId, exerciseName, setIndex));
+            return false;
         }
 
         exercise.Sets.RemoveAt(setIndex);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 }

@@ -32,10 +32,10 @@ public class DeleteWorkoutCommandHandler(
             return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var result = await repository.DeleteAsync(request.WorkoutId, cancellationToken);
-        if (result.IsFailure)
+        var isDeleted = await repository.DeleteAsync(request.WorkoutId, cancellationToken);
+        if (!isDeleted)
         {
-            return UnitResult.Failure<List<Error>>(result.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return UnitResult.Success<List<Error>>();

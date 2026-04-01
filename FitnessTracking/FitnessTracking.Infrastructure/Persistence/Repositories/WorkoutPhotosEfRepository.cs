@@ -55,22 +55,22 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var photo = await dbContext.WorkoutPhotos
             .FindAsync([id.ToString()], cancellationToken);
 
         if (photo is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutPhotoNotFound(Guid.Empty, id));
+            return false;
         }
 
         dbContext.WorkoutPhotos.Remove(photo);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 
-    public async Task<UnitResult<Error>> DeleteByWorkoutIdAndPhotoIdAsync(
+    public async Task<bool> DeleteByWorkoutIdAndPhotoIdAsync(
         Guid workoutId,
         Guid photoId,
         CancellationToken cancellationToken)
@@ -82,11 +82,11 @@ public class WorkoutPhotosEfRepository(FitnessTrackingDbContext dbContext) : IWo
 
         if (photo is null)
         {
-            return UnitResult.Failure(WorkoutErrors.WorkoutPhotoNotFound(workoutId, photoId));
+            return false;
         }
 
         dbContext.WorkoutPhotos.Remove(photo);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return UnitResult.Success<Error>();
+        return true;
     }
 }
