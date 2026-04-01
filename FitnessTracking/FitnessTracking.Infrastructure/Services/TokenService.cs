@@ -1,11 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Globalization;
 using System.Text;
 using FitnessTracking.Application.Abstractions.Auth;
+using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Constants;
 using FitnessTracking.Shared.Exceptions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,14 +13,14 @@ namespace FitnessTracking.Infrastructure.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string GenerateToken(IdentityUser user)
+    public string GenerateToken(AuthUser user)
     {
         var jwtSettings = configuration.GetSection(AuthConstants.SectionName);
 
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email ?? "")
+            new Claim(ClaimTypes.Email, user.Email)
         };
 
         var key = new SymmetricSecurityKey(
@@ -42,7 +42,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
             expires: DateTime.UtcNow.AddMinutes(tokenLifetimeMinutes),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
-        
+
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

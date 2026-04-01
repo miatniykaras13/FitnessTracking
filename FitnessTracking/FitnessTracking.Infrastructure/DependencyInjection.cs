@@ -28,7 +28,8 @@ public static class DependencyInjection
         services.AddScoped<ILocalFileStorage, LocalFileStorage>();
         services.AddSingleton<IMergePatchHelper, MergePatchHelper>();
         services.AddSingleton<ITokenService, TokenService>();
-        
+        services.AddScoped<IAuthService, IdentityAuthService>();
+
         services.AddIdentityCore<IdentityUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<FitnessTrackingDbContext>()
