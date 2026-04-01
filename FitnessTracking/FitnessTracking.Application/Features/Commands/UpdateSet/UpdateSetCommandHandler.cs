@@ -24,19 +24,19 @@ public class UpdateSetCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Set).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateSetResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<UpdateSetResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var exercise = workoutResult.Value.Exercises.FirstOrDefault(e =>
+        var exercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
         if (exercise is null)
         {

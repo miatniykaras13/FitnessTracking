@@ -24,19 +24,19 @@ public class UpdateExerciseCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Exercise).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateExerciseResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateExerciseResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<UpdateExerciseResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var workout = workoutResult.Value;
         var existingExercise = workout.Exercises.FirstOrDefault(e =>
             string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
         if (existingExercise is null)

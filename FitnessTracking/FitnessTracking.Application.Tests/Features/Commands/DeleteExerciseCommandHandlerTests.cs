@@ -28,7 +28,7 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<Workout, Error>(WorkoutErrors.WorkoutNotFound(workoutId)));
+            .ReturnsAsync((Workout?)null);
 
         var handler = new DeleteExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -56,7 +56,7 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new DeleteExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -84,7 +84,7 @@ public class DeleteExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.DeleteExerciseAsync(workoutId, "Squat", It.IsAny<CancellationToken>()))

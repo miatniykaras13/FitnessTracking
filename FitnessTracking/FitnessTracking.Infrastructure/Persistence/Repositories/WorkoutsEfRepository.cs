@@ -13,16 +13,12 @@ namespace FitnessTracking.Infrastructure.Persistence.Repositories;
 
 public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkoutsRepository
 {
-    public async Task<Result<Workout, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Workout?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .FindAsync([id.ToString()], cancellationToken);
-        if (workout is null)
-        {
-            return Result.Failure<Workout, Error>(WorkoutErrors.WorkoutNotFound(id));
-        }
 
-        return Result.Success<Workout, Error>(workout);
+        return workout;
     }
 
     public async Task<UnitResult<Error>> AddAsync(Workout workout, CancellationToken cancellationToken)
@@ -60,8 +56,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         return true;
     }
 
-    public async Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(
-        Guid userId,
+    public async Task<IReadOnlyList<Workout>> GetByUserIdAsync(Guid userId,
         WorkoutFilter filter,
         SortParameters sortParameters,
         PageParameters pageParameters,
@@ -75,36 +70,34 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             .Page(pageParameters)
             .ToListAsync(cancellationToken);
 
-        return Result.Success<IReadOnlyList<Workout>, Error>(workouts);
+        return workouts;
     }
 
-    public async Task<Result<Workout, Error>> GetByIdWithPhotosAsync(Guid workoutId, CancellationToken cancellationToken)
+    public async Task<Workout?> GetByIdWithPhotosAsync(Guid workoutId, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
             .AsNoTracking()
             .Include(w => w.ProgressPhotos)
             .FirstOrDefaultAsync(w => w.Id.Equals(workoutId.ToString()), cancellationToken);
 
-        if (workout is null)
-        {
-            return Result.Failure<Workout, Error>(WorkoutErrors.WorkoutNotFound(workoutId));
-        }
-
-        return Result.Success<Workout, Error>(workout);
+        return workout;
     }
 
-    public async Task<Result<int, Error>> GetCountByUserIdWithFilterAsync(
-        Guid userId,
+    public async Task<int> GetCountByUserIdWithFilterAsync(Guid userId,
         WorkoutFilter filter,
-        CancellationToken cancellationToken) =>
-        await dbContext.Workouts
+        CancellationToken cancellationToken)
+    {
+        var count = await dbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId.Equals(userId.ToString()))
             .Filter(filter)
             .CountAsync(cancellationToken);
 
+        return count;
+    }
 
-    public async Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
+
+    public async Task<IReadOnlyList<Exercise>?> GetExercisesByWorkoutIdAsync(
         Guid workoutId,
         CancellationToken cancellationToken)
     {
@@ -112,10 +105,10 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
-            return Result.Failure<IReadOnlyList<Exercise>, Error>(WorkoutErrors.WorkoutNotFound(workoutId));
+            return null;
         }
 
-        return Result.Success<IReadOnlyList<Exercise>, Error>(workout.Exercises);
+        return workout.Exercises;
     }
 
     public async Task<UnitResult<Error>> AddExerciseAsync(

@@ -28,9 +28,9 @@ public class GetExercisesByWorkoutIdQueryHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<GetExercisesByWorkoutIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
         repository.Setup(x => x.GetExercisesByWorkoutIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<IReadOnlyList<Exercise>, Error>(exercises));
+            .ReturnsAsync(exercises);
 
         var handler = new GetExercisesByWorkoutIdQueryHandler(repository.Object, validator.Object);
 

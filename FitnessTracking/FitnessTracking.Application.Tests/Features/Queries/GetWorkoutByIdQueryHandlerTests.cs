@@ -24,7 +24,7 @@ public class GetWorkoutByIdQueryHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<GetWorkoutByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdWithPhotosAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new GetWorkoutByIdQueryHandler(repository.Object, validator.Object);
 

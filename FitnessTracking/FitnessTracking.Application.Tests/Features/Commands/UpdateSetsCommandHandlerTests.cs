@@ -26,7 +26,7 @@ public class UpdateSetsCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<UpdateSetsCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
+            .ReturnsAsync(CreateWorkout(userId, workoutId));
         repository.Setup(x => x.UpdateSetsAsync(workoutId, "Bench", It.IsAny<IReadOnlyList<Set>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 

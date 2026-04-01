@@ -26,7 +26,7 @@ public class AddSetCommandHandlerTests
             .ReturnsAsync(new ValidationResult());
 
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
+            .ReturnsAsync(CreateWorkout(userId, workoutId));
 
         repository.Setup(x => x.AddSetAsync(workoutId, "Bench", It.IsAny<Set>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(UnitResult.Success<Error>());

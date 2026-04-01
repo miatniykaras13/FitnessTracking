@@ -30,13 +30,11 @@ public class UpdateWorkoutCommandHandler(
                 WorkoutErrors.InvalidWorkoutType(request.WorkoutDto.Type));
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<UpdateWorkoutResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<UpdateWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
-
-        var workout = workoutResult.Value;
 
         if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {

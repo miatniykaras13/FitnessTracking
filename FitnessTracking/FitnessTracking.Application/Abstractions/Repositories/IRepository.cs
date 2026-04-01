@@ -5,7 +5,7 @@ namespace FitnessTracking.Application.Abstractions.Repositories;
 
 public interface IRepository<TEntity, in TId>
 {
-    Task<Result<TEntity, Error>> GetByIdAsync(TId id, CancellationToken cancellationToken);
+    Task<TEntity?> GetByIdAsync(TId id, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> AddAsync(TEntity entity, CancellationToken cancellationToken);
 

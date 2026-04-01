@@ -34,7 +34,7 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new UpdateExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -65,7 +65,7 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.UpdateExerciseAsync(workoutId, "Squat", It.IsAny<Exercise>(), It.IsAny<CancellationToken>()))
@@ -94,7 +94,7 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.UpdateExerciseAsync(

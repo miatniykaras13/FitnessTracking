@@ -23,18 +23,18 @@ public class DeleteExerciseCommandHandler(
             return UnitResult.Failure(validationResult.Errors.ToErrors(nameof(Exercise).ToLower()));
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return UnitResult.Failure<List<Error>>(workoutResult.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var hasExercise = workoutResult.Value.Exercises.Any(e =>
+        var hasExercise = workout.Exercises.Any(e =>
             string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
         if (!hasExercise)
         {

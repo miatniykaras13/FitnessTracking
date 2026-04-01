@@ -24,13 +24,13 @@ public class AddPhotosToWorkoutCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await workoutsRepository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
@@ -46,7 +46,6 @@ public class AddPhotosToWorkoutCommandHandler(
             return Result.Failure<AddPhotosToWorkoutResponse, List<Error>>(pathResult.Error);
         }
 
-        var workout = workoutResult.Value;
         var photoId = Guid.NewGuid();
         var photo = new WorkoutPhoto
         {

@@ -9,21 +9,21 @@ namespace FitnessTracking.Application.Abstractions.Repositories;
 
 public interface IWorkoutsRepository : IRepository<Workout, Guid>
 {
-    Task<Result<IReadOnlyList<Workout>, Error>> GetByUserIdAsync(Guid userId, WorkoutFilter filter,
+    Task<IReadOnlyList<Workout>> GetByUserIdAsync(Guid userId,
+        WorkoutFilter filter,
         SortParameters sortParameters,
         PageParameters pageParameters,
         CancellationToken cancellationToken);
     
-    Task<Result<Workout, Error>> GetByIdWithPhotosAsync(
+    Task<Workout?> GetByIdWithPhotosAsync(
         Guid workoutId,
         CancellationToken cancellationToken);
 
-    Task<Result<int, Error>> GetCountByUserIdWithFilterAsync(
-        Guid userId,
+    Task<int> GetCountByUserIdWithFilterAsync(Guid userId,
         WorkoutFilter filter,
         CancellationToken cancellationToken);
 
-    Task<Result<IReadOnlyList<Exercise>, Error>> GetExercisesByWorkoutIdAsync(
+    Task<IReadOnlyList<Exercise>?> GetExercisesByWorkoutIdAsync(
         Guid workoutId,
         CancellationToken cancellationToken);
 
