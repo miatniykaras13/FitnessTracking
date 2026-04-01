@@ -34,7 +34,7 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new UpdateExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -65,11 +65,11 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.UpdateExerciseAsync(workoutId, "Squat", It.IsAny<Exercise>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Failure<Error>(WorkoutErrors.ExerciseNotFound(workoutId, "Squat")));
+            .ReturnsAsync(false);
 
         var handler = new UpdateExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -94,7 +94,7 @@ public class UpdateExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.UpdateExerciseAsync(
@@ -103,10 +103,10 @@ public class UpdateExerciseCommandHandlerTests
                 It.Is<Exercise>(e =>
                     e.Name == "Back Squat" &&
                     e.Sets.Count == 2 &&
-                    e.Sets[0].Reps == 8 && e.Sets[0].Weight == 70 &&
-                    e.Sets[1].Reps == 6 && e.Sets[1].Weight == 80),
+                    e.Sets[0].Reps == 8 && e.Sets[0].Weight.Equals(70) &&
+                    e.Sets[1].Reps == 6 && e.Sets[1].Weight.Equals(80)),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new UpdateExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -139,7 +139,8 @@ public class UpdateExerciseCommandHandlerTests
             Duration = TimeSpan.FromMinutes(40),
             CaloriesBurned = 350,
             WorkoutDate = new DateTime(2026, 3, 20),
-            CreatedAt = new DateTime(2026, 3, 1)
+            CreatedAt = new DateTime(2026, 3, 1),
+            Exercises = [new Exercise { Name = "Squat", Sets = [new Set { Reps = 10, Weight = 60 }] }]
         };
     }
 }

@@ -21,21 +21,21 @@ public class DeleteWorkoutCommandHandler(
             return UnitResult.Failure(validationResult.Errors.ToErrors(nameof(Workout).ToLower()));
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return UnitResult.Failure<List<Error>>(workoutResult.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
         }
 
-        var result = await repository.DeleteAsync(request.WorkoutId, cancellationToken);
-        if (result.IsFailure)
+        var isDeleted = await repository.DeleteAsync(request.WorkoutId, cancellationToken);
+        if (!isDeleted)
         {
-            return UnitResult.Failure<List<Error>>(result.Error);
+            return UnitResult.Failure<List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
         return UnitResult.Success<List<Error>>();

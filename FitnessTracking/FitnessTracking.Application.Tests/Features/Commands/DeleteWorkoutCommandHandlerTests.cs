@@ -24,9 +24,9 @@ public class DeleteWorkoutCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<DeleteWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
+            .ReturnsAsync(CreateWorkout(userId, workoutId));
         repository.Setup(x => x.DeleteAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new DeleteWorkoutCommandHandler(repository.Object, validator.Object);
 

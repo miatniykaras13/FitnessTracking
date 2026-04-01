@@ -23,14 +23,14 @@ public class GetWorkoutByIdQueryHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdWithPhotosAsync(request.WorkoutId, cancellationToken);
-
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdWithPhotosAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<GetWorkoutByIdResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<GetWorkoutByIdResponse, List<Error>>(
+                WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        return Result.Success<GetWorkoutByIdResponse, List<Error>>(MapToResponse(workoutResult.Value));
+        return Result.Success<GetWorkoutByIdResponse, List<Error>>(MapToResponse(workout));
     }
 
     private static GetWorkoutByIdResponse MapToResponse(Workout workout)

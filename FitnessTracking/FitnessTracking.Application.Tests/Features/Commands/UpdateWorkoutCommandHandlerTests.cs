@@ -27,9 +27,9 @@ public class UpdateWorkoutCommandHandlerTests
         validator.Setup(x => x.ValidateAsync(It.IsAny<UpdateWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
         repository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync(true);
 
         var handler = new UpdateWorkoutCommandHandler(repository.Object, validator.Object);
 

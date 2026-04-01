@@ -1,9 +1,7 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.CreateWorkout;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -42,7 +40,7 @@ public class CreateWorkoutCommandHandlerTests
             .ReturnsAsync(new ValidationResult());
 
         repository.Setup(x => x.AddAsync(It.IsAny<Workout>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync((Workout w, CancellationToken _) => w);
 
         var handler = new CreateWorkoutCommandHandler(repository.Object, validator.Object);
 

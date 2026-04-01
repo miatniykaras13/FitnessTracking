@@ -1,10 +1,8 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.AddExercise;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -30,7 +28,7 @@ public class AddExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         var handler = new AddExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -44,7 +42,7 @@ public class AddExerciseCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_Should_Return_Conflict_When_Repository_Detects_Duplicate_Exercise()
+    public async Task Handle_Should_Return_Conflict_When_Workout_Already_Has_Exercise()
     {
         var userId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
@@ -57,11 +55,9 @@ public class AddExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
-        _repository
-            .Setup(x => x.AddExerciseAsync(workoutId, It.IsAny<Exercise>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Failure<Error>(WorkoutErrors.ExerciseAlreadyExists(workoutId, command.ExerciseDto.Name)));
+        workout.Exercises = [new Exercise { Name = command.ExerciseDto.Name, Sets = [] }];
 
         var handler = new AddExerciseCommandHandler(_repository.Object, _validator.Object);
 
@@ -69,6 +65,9 @@ public class AddExerciseCommandHandlerTests
 
         Assert.True(result.IsFailure);
         Assert.Contains(result.Error, x => x.Code == "workout.exercise.is_conflict");
+        _repository.Verify(
+            x => x.AddExerciseAsync(It.IsAny<Guid>(), It.IsAny<Exercise>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -86,7 +85,7 @@ public class AddExerciseCommandHandlerTests
 
         _repository
             .Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(workout));
+            .ReturnsAsync(workout);
 
         _repository
             .Setup(x => x.AddExerciseAsync(
@@ -97,7 +96,7 @@ public class AddExerciseCommandHandlerTests
                     e.Sets[0].Reps == 10 && e.Sets[0].Weight.Equals(60) &&
                     e.Sets[1].Reps == 8 && e.Sets[1].Weight.Equals(70)),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync((Guid _, Exercise e, CancellationToken _) => e);
 
         var handler = new AddExerciseCommandHandler(_repository.Object, _validator.Object);
 

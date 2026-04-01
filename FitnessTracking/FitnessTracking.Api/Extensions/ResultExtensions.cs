@@ -34,7 +34,9 @@ public static class ResultExtensions
             return onSuccess is null ? Results.NoContent() : onSuccess();
         }
 
-        var problem = ToProblem(result.Error, httpContext);
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], httpContext)
+            : ToProblem(result.Error, httpContext);
         return Results.Problem(problem);
     }
 

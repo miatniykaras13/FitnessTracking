@@ -1,10 +1,8 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.AddSet;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
 using FitnessTracking.Shared.Contracts;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -26,10 +24,10 @@ public class AddSetCommandHandlerTests
             .ReturnsAsync(new ValidationResult());
 
         repository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<Workout, Error>(CreateWorkout(userId, workoutId)));
+            .ReturnsAsync(CreateWorkout(userId, workoutId));
 
         repository.Setup(x => x.AddSetAsync(workoutId, "Bench", It.IsAny<Set>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UnitResult.Success<Error>());
+            .ReturnsAsync((Guid _, string _, Set s, CancellationToken _) => s);
 
         var handler = new AddSetCommandHandler(repository.Object, validator.Object);
 
@@ -49,7 +47,8 @@ public class AddSetCommandHandlerTests
         Duration = TimeSpan.FromMinutes(40),
         CaloriesBurned = 300,
         WorkoutDate = new DateTime(2026, 3, 26),
-        CreatedAt = new DateTime(2026, 3, 1)
+        CreatedAt = new DateTime(2026, 3, 1),
+        Exercises = [new Exercise { Name = "Bench", Sets = [] }]
     };
 }
 

@@ -21,16 +21,24 @@ public class AddSetCommandHandler(
             return validationResult.Errors.ToErrors(nameof(Workout).ToLower());
         }
 
-        var workoutResult = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
-        if (workoutResult.IsFailure)
+        var workout = await repository.GetByIdAsync(request.WorkoutId, cancellationToken);
+        if (workout is null)
         {
-            return Result.Failure<AddSetResponse, List<Error>>(workoutResult.Error);
+            return Result.Failure<AddSetResponse, List<Error>>(WorkoutErrors.WorkoutNotFound(request.WorkoutId));
         }
 
-        if (!string.Equals(workoutResult.Value.UserId, request.UserId.ToString(), StringComparison.Ordinal))
+        if (!string.Equals(workout.UserId, request.UserId.ToString(), StringComparison.Ordinal))
         {
             return Result.Failure<AddSetResponse, List<Error>>(
                 WorkoutErrors.WorkoutAccessDenied(request.WorkoutId, request.UserId));
+        }
+
+        var exerciseExists = workout.Exercises.Any(e =>
+            string.Equals(e.Name, request.ExerciseName, StringComparison.OrdinalIgnoreCase));
+        if (!exerciseExists)
+        {
+            return Result.Failure<AddSetResponse, List<Error>>(
+                WorkoutErrors.ExerciseNotFound(request.WorkoutId, request.ExerciseName));
         }
 
         var set = new Set
@@ -39,12 +47,12 @@ public class AddSetCommandHandler(
             Weight = request.SetDto.Weight
         };
 
-        var addResult = await repository.AddSetAsync(request.WorkoutId, request.ExerciseName, set, cancellationToken);
-        if (addResult.IsFailure)
+        var addedSet = await repository.AddSetAsync(request.WorkoutId, request.ExerciseName, set, cancellationToken);
+        if (addedSet is null)
         {
-            return Result.Failure<AddSetResponse, List<Error>>(addResult.Error);
+            return Result.Failure<AddSetResponse, List<Error>>(Error.Internal(message: "Failed to add set."));
         }
 
-        return new AddSetResponse(set.Reps, set.Weight);
+        return new AddSetResponse(addedSet.Reps, addedSet.Weight);
     }
 }
