@@ -8,9 +8,7 @@ namespace FitnessTracking.Application.Features.Commands.RegisterUser;
 public class RegisterUserCommandHandler(IAuthService authService)
     : ICommandHandler<RegisterUserCommand, Result<RegisterUserResponse, List<Error>>>
 {
-    public async Task<Result<RegisterUserResponse, List<Error>>> Handle(
-        RegisterUserCommand request,
-        CancellationToken cancellationToken)
+    public async Task<Result<RegisterUserResponse, List<Error>>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         var registerResult = await authService.RegisterAsync(request.Email, request.Password, cancellationToken);
 

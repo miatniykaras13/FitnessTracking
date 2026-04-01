@@ -28,9 +28,9 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
         [FromQuery] WorkoutFilter filter,
         [FromQuery] SortParameters sortParameters,
         [FromQuery] PageParameters pageParameters,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
-        return await Send(new GetWorkoutsByUserIdQuery(userId, filter, sortParameters, pageParameters), ct);
+        return await Send(new GetWorkoutsByUserIdQuery(userId, filter, sortParameters, pageParameters), cancellationToken);
     }
 
     [HttpGet("workouts/{workoutId:guid}")]
@@ -39,9 +39,9 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
     [EndpointDescription("Returns a single workout by its identifier.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid workoutId, CancellationToken ct)
+    public async Task<IActionResult> GetById(Guid workoutId, CancellationToken cancellationToken)
     {
-        return await Send(new GetWorkoutByIdQuery(workoutId), ct);
+        return await Send(new GetWorkoutByIdQuery(workoutId), cancellationToken);
     }
 
     [HttpPost("workouts")]
@@ -51,7 +51,7 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreateWorkoutDto dto, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateWorkoutDto dto, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
@@ -59,7 +59,7 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
         }
 
         var command = new CreateWorkoutCommand(userId, dto);
-        return await Send(command, ct, created => Created($"/workouts/{created.WorkoutId}", created));
+        return await Send(command, cancellationToken, created => Created($"/workouts/{created.WorkoutId}", created));
     }
 
     [HttpPut("workouts/{workoutId:guid}")]
@@ -70,14 +70,14 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid workoutId, [FromBody] UpdateWorkoutDto dto, CancellationToken ct)
+    public async Task<IActionResult> Update(Guid workoutId, [FromBody] UpdateWorkoutDto dto, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new UpdateWorkoutCommand(workoutId, userId, dto), ct);
+        return await Send(new UpdateWorkoutCommand(userId, workoutId, dto), cancellationToken);
     }
 
     [HttpPatch("workouts/{workoutId:guid}")]
@@ -92,14 +92,14 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
     public async Task<IActionResult> Patch(
         Guid workoutId,
         [FromBody] JsonObject? patch,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new PatchWorkoutCommand(userId, workoutId, RequirePatch(patch)), ct);
+        return await Send(new PatchWorkoutCommand(userId, workoutId, RequirePatch(patch)), cancellationToken);
     }
 
     [HttpDelete("workouts/{workoutId:guid}")]
@@ -109,17 +109,14 @@ public class WorkoutsController(ISender sender) : ApiControllerBase(sender)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid workoutId, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid workoutId, CancellationToken cancellationToken)
     {
         if (!TryGetCurrentUserId(out var userId))
         {
             return Unauthorized();
         }
 
-        return await Send(new DeleteWorkoutCommand(workoutId, userId), ct);
+        return await Send(new DeleteWorkoutCommand(userId, workoutId), cancellationToken);
     }
-
 }
-
-
 

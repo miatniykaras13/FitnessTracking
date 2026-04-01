@@ -45,7 +45,7 @@ public class LocalFileStorage(IConfiguration configuration) : ILocalFileStorage
         var normalizedPath = relativePath.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
         var rootPath = GetRootPath();
 
-       
+
         if (normalizedPath.StartsWith(
                 $"{FileStorageConstants.DefaultRootFolderName}{Path.DirectorySeparatorChar}",
                 StringComparison.OrdinalIgnoreCase))

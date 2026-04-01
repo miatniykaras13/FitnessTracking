@@ -19,7 +19,7 @@ public class DeleteWorkoutCommandHandlerTests
         var validator = new Mock<IValidator<DeleteWorkoutCommand>>();
         var userId = Guid.NewGuid();
         var workoutId = Guid.NewGuid();
-        var command = new DeleteWorkoutCommand(workoutId, userId);
+        var command = new DeleteWorkoutCommand(userId, workoutId);
 
         validator.Setup(x => x.ValidateAsync(It.IsAny<DeleteWorkoutCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
