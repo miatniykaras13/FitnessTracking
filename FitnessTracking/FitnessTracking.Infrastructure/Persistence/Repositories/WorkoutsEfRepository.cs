@@ -9,50 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracking.Infrastructure.Persistence.Repositories;
 
-public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkoutsRepository
+public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext)
+    : Repository<Workout, Guid>(dbContext, dbContext.Workouts), IWorkoutsRepository
 {
-    public async Task<Workout?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var workout = await dbContext.Workouts
-            .FindAsync([id.ToString()], cancellationToken);
-
-        return workout;
-    }
-
-    public async Task<Workout> AddAsync(Workout workout, CancellationToken cancellationToken)
-    {
-        await dbContext.Workouts.AddAsync(workout, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return workout;
-    }
-
-    public async Task<bool> UpdateAsync(Workout workout, CancellationToken cancellationToken)
-    {
-        var exists = await dbContext.Workouts.AnyAsync(w => w.Id == workout.Id, cancellationToken);
-        if (!exists)
-        {
-            return false;
-        }
-
-        dbContext.Workouts.Update(workout);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return true;
-    }
-
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var workout = await dbContext.Workouts
-            .FindAsync([id.ToString()], cancellationToken);
-
-        if (workout is null)
-        {
-            return false;
-        }
-
-        dbContext.Workouts.Remove(workout);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return true;
-    }
 
     public async Task<IReadOnlyList<Workout>> GetByUserIdAsync(Guid userId,
         WorkoutFilter filter,
@@ -60,7 +19,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         PageParameters pageParameters,
         CancellationToken cancellationToken)
     {
-        var workouts = await dbContext.Workouts
+        var workouts = await DbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId.Equals(userId.ToString()))
             .Filter(filter)
@@ -73,7 +32,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
     public async Task<Workout?> GetByIdWithPhotosAsync(Guid workoutId, CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .AsNoTracking()
             .Include(w => w.ProgressPhotos)
             .FirstOrDefaultAsync(w => w.Id.Equals(workoutId.ToString()), cancellationToken);
@@ -85,7 +44,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         WorkoutFilter filter,
         CancellationToken cancellationToken)
     {
-        var count = await dbContext.Workouts
+        var count = await DbContext.Workouts
             .AsNoTracking()
             .Where(w => w.UserId.Equals(userId.ToString()))
             .Filter(filter)
@@ -99,7 +58,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Guid workoutId,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
@@ -114,7 +73,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Exercise exercise,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
 
         if (workout is null)
@@ -130,7 +89,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         workout.Exercises.Add(exercise);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return exercise;
     }
 
@@ -140,7 +99,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Exercise exercise,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
 
         if (workout is null)
@@ -158,7 +117,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         existingExercise.Name = exercise.Name;
         existingExercise.Sets = exercise.Sets;
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
@@ -167,7 +126,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         IReadOnlyList<Exercise> exercises,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
 
         if (workout is null)
@@ -177,7 +136,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
 
         workout.Exercises = exercises.ToList();
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
@@ -187,7 +146,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         string exerciseName,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
 
         if (workout is null)
@@ -203,7 +162,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         workout.Exercises.Remove(exercise);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
@@ -213,7 +172,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         Set set,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
 
         if (workout is null)
@@ -229,7 +188,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         exercise.Sets.Add(set);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return set;
     }
 
@@ -243,7 +202,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         if (setIndex < ValidationConstants.MinZeroBasedIndex)
             return false;
 
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
@@ -263,7 +222,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         exercise.Sets[setIndex] = set;
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
@@ -273,7 +232,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         IReadOnlyList<Set> sets,
         CancellationToken cancellationToken)
     {
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
@@ -288,7 +247,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         exercise.Sets = sets.ToList();
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
@@ -303,7 +262,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
             return false;
         }
 
-        var workout = await dbContext.Workouts
+        var workout = await DbContext.Workouts
             .FindAsync([workoutId.ToString()], cancellationToken);
         if (workout is null)
         {
@@ -323,7 +282,7 @@ public class WorkoutsEfRepository(FitnessTrackingDbContext dbContext) : IWorkout
         }
 
         exercise.Sets.RemoveAt(setIndex);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 }
