@@ -57,10 +57,10 @@ public class DeleteWorkoutPhotoCommandHandler(
                 WorkoutErrors.WorkoutPhotoNotFound(request.WorkoutId, request.PhotoId));
         }
 
-        var deleteFileResult = await fileStorage.DeleteWorkoutPhotoAsync(photo.Path, cancellationToken);
-        if (deleteFileResult.IsFailure)
+        var isFileDeleted = await fileStorage.DeleteWorkoutPhotoAsync(photo.Path, cancellationToken);
+        if (!isFileDeleted)
         {
-            return UnitResult.Failure<List<Error>>(deleteFileResult.Error);
+            return UnitResult.Failure<List<Error>>(Error.Internal(message: "Failed to delete workout photo file."));
         }
 
         return UnitResult.Success<List<Error>>();

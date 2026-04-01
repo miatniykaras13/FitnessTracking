@@ -1,10 +1,8 @@
-using CSharpFunctionalExtensions;
 using FitnessTracking.Application.Abstractions.Helpers;
 using FitnessTracking.Application.Abstractions.Repositories;
 using FitnessTracking.Application.Features.Commands.AddPhotosToWorkout;
 using FitnessTracking.Domain.Enums;
 using FitnessTracking.Domain.Models;
-using FitnessTracking.Shared.Errors;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -31,7 +29,7 @@ public class AddPhotosToWorkoutCommandHandlerTests
         workoutsRepository.Setup(x => x.GetByIdAsync(workoutId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(workout);
         fileStorage.Setup(x => x.SaveWorkoutPhotoAsync(workoutId, "photo.jpg", command.FileContent, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success<string, Error>("uploads/workouts/photo.jpg"));
+            .ReturnsAsync("uploads/workouts/photo.jpg");
         photosRepository.Setup(x => x.AddAsync(It.IsAny<WorkoutPhoto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((WorkoutPhoto p, CancellationToken _) => p);
         workoutsRepository.Setup(x => x.UpdateAsync(workout, It.IsAny<CancellationToken>()))
