@@ -8,6 +8,46 @@ namespace FitnessTracking.Api.Extensions;
 
 public static class ResultExtensions
 {
+    public static IActionResult ToActionResult<T>(
+        this Result<T, List<Error>> result,
+        ControllerBase controller,
+        Func<T, IActionResult>? onSuccess = null)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess is null ? controller.Ok(result.Value) : onSuccess(result.Value);
+        }
+
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], controller.HttpContext)
+            : ToProblem(result.Error, controller.HttpContext);
+
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status
+        };
+    }
+
+    public static IActionResult ToActionResult(
+        this UnitResult<List<Error>> result,
+        ControllerBase controller,
+        Func<IActionResult>? onSuccess = null)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess is null ? controller.NoContent() : onSuccess();
+        }
+
+        var problem = result.Error.Count == 1
+            ? ToProblem(result.Error[0], controller.HttpContext)
+            : ToProblem(result.Error, controller.HttpContext);
+
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status
+        };
+    }
+
     public static Microsoft.AspNetCore.Http.IResult ToHttpResult<T>(
         this Result<T, List<Error>> result,
         HttpContext httpContext,
